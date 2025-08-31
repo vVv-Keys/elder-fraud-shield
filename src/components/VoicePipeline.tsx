@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mic, MicOff, Phone, PhoneOff, AlertTriangle, Shield, Volume2 } from 'lucide-react';
+import { Mic, MicOff, Phone, PhoneOff, AlertTriangle, Shield, Volume2, Play, Pause } from 'lucide-react';
 import { CallData, Alert, VoiceAnalysis } from '../types';
 import RealTimeAnalysis from './RealTimeAnalysis';
 import ScamIndicators from './ScamIndicators';
@@ -10,6 +10,7 @@ interface VoicePipelineProps {
   onNewAlert: (alert: Alert) => void;
   isCallActive: boolean;
   currentCall: CallData | null;
+  highContrast: boolean;
 }
 
 const VoicePipeline: React.FC<VoicePipelineProps> = ({
@@ -17,25 +18,77 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
   onCallEnd,
   onNewAlert,
   isCallActive,
-  currentCall
+  currentCall,
+  highContrast
 }) => {
   const [isListening, setIsListening] = useState(false);
+  const [callDuration, setCallDuration] = useState(0);
   const [voiceAnalysis, setVoiceAnalysis] = useState<VoiceAnalysis>({
     isProcessing: false,
     currentPhrase: '',
     riskScore: 0,
     detectedPatterns: [],
-    recommendations: []
+    recommendations: [],
+    confidence: 0,
+    processingTime: 0
   });
 
-  // Simulate incoming call
+  // Update call duration
+  useEffect(() => {
+    if (!isCallActive) return;
+
+    const interval = setInterval(() => {
+      setCallDuration(prev => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isCallActive]);
+
+  // Reset duration when call ends
+  useEffect(() => {
+    if (!isCallActive) {
+      setCallDuration(0);
+    }
+  }, [isCallActive]);
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Simulate incoming call with realistic scam scenarios
   const simulateIncomingCall = () => {
+    const scamScenarios = [
+      {
+        number: '+1 (555) 000-1234',
+        name: 'Unknown Caller',
+        riskLevel: 'high' as const,
+        scenario: 'IRS Tax Scam'
+      },
+      {
+        number: '+1 (800) 123-4567',
+        name: 'Microsoft Support',
+        riskLevel: 'critical' as const,
+        scenario: 'Tech Support Scam'
+      },
+      {
+        number: '+1 (555) 999-0000',
+        name: 'Bank Security',
+        riskLevel: 'medium' as const,
+        scenario: 'Bank Fraud Alert'
+      }
+    ];
+
+    const scenario = scamScenarios[Math.floor(Math.random() * scamScenarios.length)];
+    
     const mockCall: CallData = {
       id: `call-${Date.now()}`,
-      phoneNumber: '+1 (555) 000-1234',
+      phoneNumber: scenario.number,
+      callerName: scenario.name,
       startTime: new Date(),
       duration: 0,
-      riskLevel: 'low',
+      riskLevel: scenario.riskLevel,
       transcript: [],
       scamIndicators: [],
       sentiment: {
@@ -45,29 +98,51 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
           anger: 0.1,
           fear: 0.2,
           urgency: 0.3,
-          manipulation: 0.1
-        }
-      }
+          manipulation: 0.1,
+          deception: 0.2
+        },
+        voiceStress: 0.3
+      },
+      isRecorded: true
     };
     
     onCallStart(mockCall);
     setIsListening(true);
     
-    // Simulate scam detection after a few seconds
+    // Simulate progressive scam detection
     setTimeout(() => {
       const alert: Alert = {
         id: `alert-${Date.now()}`,
         type: 'scam_detected',
-        title: 'Potential Scam Detected',
-        message: 'The caller is using high-pressure tactics and requesting personal information.',
+        title: `⚠️ SCAM ALERT: ${scenario.scenario}`,
+        message: `This caller is using known scam tactics. They may try to pressure you or ask for personal information. DO NOT give them any information.`,
         timestamp: new Date(),
-        riskLevel: 'high',
+        riskLevel: scenario.riskLevel,
         callId: mockCall.id,
         isRead: false,
+        priority: scenario.riskLevel === 'critical' ? 'urgent' : 'high',
         actions: [
-          { id: '1', label: 'Hang Up', type: 'hang_up', variant: 'danger' },
-          { id: '2', label: 'Notify Sarah', type: 'notify_contact', variant: 'primary' },
-          { id: '3', label: 'Record Call', type: 'record', variant: 'secondary' }
+          { 
+            id: '1', 
+            label: '🛑 HANG UP NOW', 
+            type: 'hang_up', 
+            variant: 'danger',
+            description: 'Immediately end this dangerous call'
+          },
+          { 
+            id: '2', 
+            label: '📞 Call Sarah', 
+            type: 'notify_contact', 
+            variant: 'primary',
+            description: 'Notify your daughter about this threat'
+          },
+          { 
+            id: '3', 
+            label: '📝 Report Scam', 
+            type: 'report_scam', 
+            variant: 'secondary',
+            description: 'Report this number to authorities'
+          }
         ]
       };
       onNewAlert(alert);
@@ -82,105 +157,154 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
       currentPhrase: '',
       riskScore: 0,
       detectedPatterns: [],
-      recommendations: []
+      recommendations: [],
+      confidence: 0,
+      processingTime: 0
     });
   };
 
-  // Simulate real-time voice analysis
+  // Enhanced real-time voice analysis simulation
   useEffect(() => {
     if (!isCallActive) return;
 
     const interval = setInterval(() => {
-      const phrases = [
-        "This is your final notice...",
-        "You need to act immediately...",
-        "Your account will be closed...",
-        "Provide your social security number...",
-        "Wire money to this account...",
-        "Don't tell anyone about this call..."
+      const scamPhrases = [
+        "This is your final notice from the IRS...",
+        "Your computer has been infected with a virus...",
+        "You've won a $1000 gift card, but we need your credit card...",
+        "Your social security number has been suspended...",
+        "This is Microsoft support, we detected suspicious activity...",
+        "You need to wire money immediately to avoid arrest...",
+        "Don't hang up or you'll be arrested...",
+        "We need to verify your bank account information..."
       ];
       
       const patterns = [
-        "Urgency pressure",
-        "Authority impersonation",
-        "Personal info request",
-        "Financial demand",
-        "Secrecy request"
+        "🚨 Urgency pressure tactics",
+        "👮 False authority claims",
+        "💳 Personal information requests",
+        "💰 Financial demands",
+        "🤐 Secrecy requirements",
+        "💻 Tech support impersonation",
+        "🏆 Prize/lottery scams"
       ];
 
       const recommendations = [
-        "Ask for caller's name and company",
-        "Request to call them back",
-        "Verify with official sources",
-        "Never give personal information",
-        "Hang up if pressured"
+        "🛑 Consider hanging up immediately",
+        "❓ Ask for their name and company",
+        "📞 Say you'll call them back",
+        "🔍 Verify with official sources",
+        "🚫 Never give personal information",
+        "👥 Ask a family member for advice",
+        "📝 Write down what they're saying"
       ];
 
+      const riskScore = Math.min(100, Math.random() * 85 + 15);
+      
       setVoiceAnalysis({
         isProcessing: true,
-        currentPhrase: phrases[Math.floor(Math.random() * phrases.length)],
-        riskScore: Math.min(100, Math.random() * 85 + 15),
-        detectedPatterns: patterns.slice(0, Math.floor(Math.random() * 3) + 1),
-        recommendations: recommendations.slice(0, Math.floor(Math.random() * 3) + 2)
+        currentPhrase: scamPhrases[Math.floor(Math.random() * scamPhrases.length)],
+        riskScore,
+        detectedPatterns: patterns.slice(0, Math.floor(Math.random() * 4) + 1),
+        recommendations: recommendations.slice(0, Math.floor(Math.random() * 3) + 2),
+        confidence: Math.random() * 0.3 + 0.7,
+        processingTime: Math.random() * 2 + 0.5
       });
-    }, 2000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [isCallActive]);
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
-          <h2 className="text-xl font-bold text-white flex items-center space-x-2">
-            <Volume2 className="w-6 h-6" />
-            <span>Real-Time Voice Monitor</span>
+    <div className="space-y-8">
+      <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} rounded-2xl shadow-xl border overflow-hidden`}>
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
+          <h2 className="text-2xl font-bold text-white flex items-center space-x-3">
+            <Volume2 className="w-8 h-8" />
+            <span>Phone Call Monitor</span>
           </h2>
-          <p className="text-blue-100 mt-1">AI-powered scam detection for incoming calls</p>
+          <p className="text-blue-100 mt-2 text-lg">
+            AI is listening and protecting you from scam calls
+          </p>
         </div>
         
-        <div className="p-6">
+        <div className="p-8">
           {!isCallActive ? (
-            <div className="text-center py-12">
-              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Phone className="w-12 h-12 text-gray-400" />
+            <div className="text-center py-16">
+              <div className={`w-32 h-32 ${highContrast ? 'bg-gray-800' : 'bg-gray-100'} rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg`}>
+                <Phone className={`w-16 h-16 ${highContrast ? 'text-gray-400' : 'text-gray-400'}`} />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Waiting for Calls</h3>
-              <p className="text-gray-600 mb-6">ScamGuard is actively monitoring for incoming calls</p>
+              <h3 className={`text-2xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'} mb-4`}>
+                Ready to Protect You
+              </h3>
+              <p className={`${highContrast ? 'text-gray-300' : 'text-gray-600'} mb-8 text-lg max-w-md mx-auto`}>
+                ScamGuard is actively monitoring for incoming calls. When a call comes in, 
+                our AI will analyze it in real-time to keep you safe.
+              </p>
               
-              <button
-                onClick={simulateIncomingCall}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-lg hover:shadow-xl"
-              >
-                Simulate Incoming Call
-              </button>
+              <div className="space-y-4">
+                <button
+                  onClick={simulateIncomingCall}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-colors shadow-lg hover:shadow-xl"
+                >
+                  🎭 Try Demo Call
+                </button>
+                <p className={`text-sm ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Test how ScamGuard protects you
+                </p>
+              </div>
             </div>
           ) : (
-            <div className="space-y-6">
-              {/* Call Status */}
-              <div className="flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                  <div>
-                    <p className="font-semibold text-red-900">Active Call</p>
-                    <p className="text-sm text-red-700">{currentCall?.phoneNumber}</p>
+            <div className="space-y-8">
+              {/* Call Status Header */}
+              <div className={`p-6 rounded-xl border-2 ${
+                currentCall?.riskLevel === 'critical' ? 'bg-red-50 border-red-300' :
+                currentCall?.riskLevel === 'high' ? 'bg-orange-50 border-orange-300' :
+                'bg-blue-50 border-blue-300'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
+                    <div>
+                      <p className={`text-xl font-bold ${
+                        currentCall?.riskLevel === 'critical' ? 'text-red-900' :
+                        currentCall?.riskLevel === 'high' ? 'text-orange-900' :
+                        'text-blue-900'
+                      }`}>
+                        📞 ACTIVE CALL
+                      </p>
+                      <p className={`text-lg ${
+                        currentCall?.riskLevel === 'critical' ? 'text-red-700' :
+                        currentCall?.riskLevel === 'high' ? 'text-orange-700' :
+                        'text-blue-700'
+                      }`}>
+                        {currentCall?.phoneNumber} • {currentCall?.callerName}
+                      </p>
+                      <p className={`text-sm ${
+                        currentCall?.riskLevel === 'critical' ? 'text-red-600' :
+                        currentCall?.riskLevel === 'high' ? 'text-orange-600' :
+                        'text-blue-600'
+                      }`}>
+                        Duration: {formatDuration(callDuration)}
+                      </p>
+                    </div>
                   </div>
+                  
+                  <button
+                    onClick={handleEndCall}
+                    className="flex items-center space-x-3 bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-xl transition-colors shadow-lg text-lg font-bold"
+                  >
+                    <PhoneOff className="w-6 h-6" />
+                    <span>END CALL</span>
+                  </button>
                 </div>
-                
-                <button
-                  onClick={handleEndCall}
-                  className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  <PhoneOff className="w-4 h-4" />
-                  <span>End Call</span>
-                </button>
               </div>
 
               {/* Real-time Analysis */}
-              <RealTimeAnalysis analysis={voiceAnalysis} />
+              <RealTimeAnalysis analysis={voiceAnalysis} highContrast={highContrast} />
               
               {/* Scam Indicators */}
-              <ScamIndicators callData={currentCall} />
+              <ScamIndicators callData={currentCall} highContrast={highContrast} />
             </div>
           )}
         </div>
