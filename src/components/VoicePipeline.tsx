@@ -149,6 +149,90 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
     }, 3000);
   };
 
+  const simulateSpecificScam = (type: 'irs' | 'tech' | 'bank') => {
+    const scenarios = {
+      irs: {
+        number: '+1 (202) 555-0123',
+        name: 'IRS Tax Division',
+        riskLevel: 'critical' as const,
+        scenario: 'IRS Tax Scam'
+      },
+      tech: {
+        number: '+1 (800) 555-0199',
+        name: 'Microsoft Support',
+        riskLevel: 'critical' as const,
+        scenario: 'Tech Support Scam'
+      },
+      bank: {
+        number: '+1 (555) 555-0187',
+        name: 'Bank Security',
+        riskLevel: 'high' as const,
+        scenario: 'Bank Fraud Alert'
+      }
+    };
+
+    const scenario = scenarios[type];
+    
+    const mockCall: CallData = {
+      id: `call-${Date.now()}`,
+      phoneNumber: scenario.number,
+      callerName: scenario.name,
+      startTime: new Date(),
+      duration: 0,
+      riskLevel: scenario.riskLevel,
+      transcript: [],
+      scamIndicators: [],
+      sentiment: {
+        overall: 'negative',
+        confidence: 0.8,
+        emotions: {
+          anger: 0.2,
+          fear: 0.4,
+          urgency: 0.7,
+          manipulation: 0.6,
+          deception: 0.8
+        },
+        voiceStress: 0.6
+      },
+      isRecorded: true
+    };
+    
+    onCallStart(mockCall);
+    setIsListening(true);
+    
+    // Simulate immediate high-risk detection
+    setTimeout(() => {
+      const alert: Alert = {
+        id: `alert-${Date.now()}`,
+        type: 'scam_detected',
+        title: `🚨 DANGER: ${scenario.scenario} Detected`,
+        message: `This is a dangerous scam call. The caller is trying to trick you. DO NOT give them any information. Hang up immediately.`,
+        timestamp: new Date(),
+        riskLevel: scenario.riskLevel,
+        callId: mockCall.id,
+        isRead: false,
+        priority: 'urgent',
+        actions: [
+          { 
+            id: '1', 
+            label: '🛑 HANG UP RIGHT NOW', 
+            type: 'hang_up', 
+            variant: 'danger',
+            description: 'End this dangerous call immediately'
+          },
+          { 
+            id: '2', 
+            label: '📞 Call My Family', 
+            type: 'notify_contact', 
+            variant: 'primary',
+            description: 'Let your family know about this threat'
+          }
+        ]
+      };
+      onNewAlert(alert);
+    }, 2000);
+  };
+
   const handleEndCall = () => {
     onCallEnd();
     setIsListening(false);
@@ -249,6 +333,26 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
                 >
                   🎭 Try Demo Call
                 </button>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <button
+                    onClick={() => simulateSpecificScam('irs')}
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    📋 IRS Tax Scam
+                  </button>
+                  <button
+                    onClick={() => simulateSpecificScam('tech')}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    💻 Tech Support
+                  </button>
+                  <button
+                    onClick={() => simulateSpecificScam('bank')}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    🏦 Bank Fraud
+                  </button>
+                </div>
                 <p className={`text-sm ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>
                   Test how ScamGuard protects you
                 </p>
@@ -292,6 +396,7 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
                   
                   <button
                     onClick={handleEndCall}
+                    data-hangup-button
                     className="flex items-center space-x-3 bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-xl transition-colors shadow-lg text-lg font-bold"
                   >
                     <PhoneOff className="w-6 h-6" />

@@ -134,6 +134,7 @@ function App() {
             {/* Emergency Button */}
             <div className="mt-8 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
               <button
+                data-emergency-button
                 onClick={() => setShowEmergencyPanel(true)}
                 className="w-full bg-red-600 hover:bg-red-700 text-white py-4 px-6 rounded-lg font-bold text-lg transition-colors shadow-lg"
               >
@@ -141,6 +142,9 @@ function App() {
               </button>
               <p className="text-red-700 text-sm mt-2 text-center font-medium">
                 Click if you need immediate assistance
+              </p>
+              <p className="text-red-600 text-xs mt-1 text-center">
+                Keyboard shortcut: Ctrl + Shift + E
               </p>
             </div>
           </div>
@@ -169,6 +173,7 @@ function App() {
                 alerts={alerts} 
                 trustedContacts={trustedContacts}
                 highContrast={highContrast}
+                highContrast={highContrast}
               />
             )}
             
@@ -177,12 +182,16 @@ function App() {
                 contacts={trustedContacts}
                 onUpdateContacts={setTrustedContacts}
                 highContrast={highContrast}
+                highContrast={highContrast}
               />
             )}
             
             {activeTab === 'settings' && (
               <SettingsPanel 
                 highContrast={highContrast}
+                fontSize={fontSize}
+                onFontSizeChange={setFontSize}
+                onHighContrastChange={setHighContrast}
                 fontSize={fontSize}
                 onFontSizeChange={setFontSize}
                 onHighContrastChange={setHighContrast}

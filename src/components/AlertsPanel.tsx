@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Phone, Mail, Clock, CheckCircle, X } from 'lucide-react';
+import { AlertTriangle, Phone, Mail, Clock, CheckCircle, X, Shield, TrendingDown } from 'lucide-react';
 import { Alert, TrustedContact } from '../types';
 
 interface AlertsPanelProps {
   alerts: Alert[];
   trustedContacts: TrustedContact[];
+  highContrast: boolean;
 }
 
-const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, trustedContacts }) => {
+const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, trustedContacts, highContrast }) => {
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
+
+  const stats = {
+    totalCalls: 47,
+    scamsBlocked: 12,
+    riskReduction: 89,
+    avgResponseTime: 2.3
+  };
 
   const getAlertIcon = (type: string) => {
     switch (type) {
@@ -20,6 +28,15 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, trustedContacts }) =>
   };
 
   const getAlertColor = (riskLevel: string) => {
+    if (highContrast) {
+      switch (riskLevel) {
+        case 'critical': return 'bg-red-900 border-red-600 text-red-200';
+        case 'high': return 'bg-orange-900 border-orange-600 text-orange-200';
+        case 'medium': return 'bg-yellow-900 border-yellow-600 text-yellow-200';
+        default: return 'bg-blue-900 border-blue-600 text-blue-200';
+      }
+    }
+    
     switch (riskLevel) {
       case 'critical': return 'bg-red-50 border-red-200 text-red-800';
       case 'high': return 'bg-orange-50 border-orange-200 text-orange-800';
@@ -37,12 +54,18 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, trustedContacts }) =>
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Security Alerts</h2>
-          <p className="text-gray-600">Real-time notifications and threat responses</p>
+          <h2 className={`text-3xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
+            Safety Alerts
+          </h2>
+          <p className={`${highContrast ? 'text-gray-300' : 'text-gray-600'} text-lg mt-2`}>
+            Recent warnings and protection updates
+          </p>
         </div>
         
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-600">
+        <div className={`flex items-center space-x-4 px-6 py-3 rounded-xl ${
+          highContrast ? 'bg-gray-800' : 'bg-blue-50'
+        }`}>
+          <span className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-700'}`}>
             {alerts.filter(a => !a.isRead).length} unread
           </span>
         </div>
@@ -50,12 +73,16 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, trustedContacts }) =>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Alerts List */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-6">
           {alerts.length === 0 ? (
-            <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-200 text-center">
-              <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">All Clear</h3>
-              <p className="text-gray-600">No security alerts at this time</p>
+            <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-12 rounded-2xl shadow-lg border text-center`}>
+              <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
+              <h3 className={`text-2xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'} mb-4`}>
+                ✅ All Clear
+              </h3>
+              <p className={`${highContrast ? 'text-gray-300' : 'text-gray-600'} text-lg`}>
+                No safety alerts at this time - you're well protected!
+              </p>
             </div>
           ) : (
             alerts.map((alert) => {
@@ -63,29 +90,29 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, trustedContacts }) =>
               return (
                 <div
                   key={alert.id}
-                  className={`p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
+                  className={`p-6 rounded-xl border-2 cursor-pointer transition-all hover:shadow-lg ${
                     getAlertColor(alert.riskLevel)
-                  } ${!alert.isRead ? 'ring-2 ring-blue-200' : ''}`}
+                  } ${!alert.isRead ? 'ring-4 ring-blue-300' : ''}`}
                   onClick={() => setSelectedAlert(alert)}
                 >
-                  <div className="flex items-start space-x-3">
-                    <Icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                  <div className="flex items-start space-x-4">
+                    <Icon className="w-8 h-8 mt-1 flex-shrink-0" />
                     <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-semibold">{alert.title}</h4>
-                        <span className="text-xs font-medium uppercase">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-xl font-bold">{alert.title}</h4>
+                        <span className="text-lg font-bold uppercase px-3 py-1 rounded-full">
                           {alert.riskLevel} risk
                         </span>
                       </div>
-                      <p className="text-sm mb-2">{alert.message}</p>
-                      <div className="flex items-center space-x-4 text-xs">
+                      <p className="text-lg mb-4 leading-relaxed">{alert.message}</p>
+                      <div className="flex items-center space-x-6 text-base">
                         <span className="flex items-center space-x-1">
-                          <Clock className="w-3 h-3" />
+                          <Clock className="w-5 h-5" />
                           <span>{alert.timestamp.toLocaleTimeString()}</span>
                         </span>
                         {alert.callId && (
                           <span className="flex items-center space-x-1">
-                            <Phone className="w-3 h-3" />
+                            <Phone className="w-5 h-5" />
                             <span>Call ID: {alert.callId.slice(-8)}</span>
                           </span>
                         )}
@@ -99,23 +126,27 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, trustedContacts }) =>
         </div>
 
         {/* Alert Details */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+        <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} rounded-2xl shadow-lg border p-8`}>
           {selectedAlert ? (
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">Alert Details</h3>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
+                  Alert Details
+                </h3>
                 <button
                   onClick={() => setSelectedAlert(null)}
-                  className="p-1 hover:bg-gray-100 rounded"
+                  className={`p-2 ${highContrast ? 'hover:bg-gray-800' : 'hover:bg-gray-100'} rounded-lg transition-colors`}
                 >
-                  <X className="w-4 h-4 text-gray-500" />
+                  <X className={`w-6 h-6 ${highContrast ? 'text-gray-400' : 'text-gray-500'}`} />
                 </button>
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">Type</label>
-                  <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                  <label className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-700'} block mb-2`}>
+                    Alert Type
+                  </label>
+                  <span className={`inline-block px-4 py-2 rounded-xl text-lg font-bold ${
                     getAlertColor(selectedAlert.riskLevel)
                   }`}>
                     {selectedAlert.type.replace('_', ' ').toUpperCase()}
@@ -123,29 +154,35 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, trustedContacts }) =>
                 </div>
                 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">Message</label>
-                  <p className="text-sm text-gray-900">{selectedAlert.message}</p>
+                  <label className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-700'} block mb-2`}>
+                    What Happened
+                  </label>
+                  <p className={`text-lg ${highContrast ? 'text-white' : 'text-gray-900'} leading-relaxed`}>
+                    {selectedAlert.message}
+                  </p>
                 </div>
                 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">Timestamp</label>
-                  <p className="text-sm text-gray-900">{selectedAlert.timestamp.toLocaleString()}</p>
+                  <label className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-700'} block mb-2`}>When</label>
+                  <p className={`text-lg ${highContrast ? 'text-white' : 'text-gray-900'}`}>{selectedAlert.timestamp.toLocaleString()}</p>
                 </div>
 
                 {selectedAlert.actions && (
                   <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-2">Quick Actions</label>
-                    <div className="space-y-2">
+                    <label className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-700'} block mb-4`}>
+                      What You Can Do
+                    </label>
+                    <div className="space-y-3">
                       {selectedAlert.actions.map((action) => (
                         <button
                           key={action.id}
                           onClick={() => handleAction(action)}
-                          className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
+                          className={`w-full px-6 py-4 rounded-xl font-bold text-lg transition-colors shadow-lg ${
                             action.variant === 'danger'
                               ? 'bg-red-600 hover:bg-red-700 text-white'
                               : action.variant === 'primary'
                               ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                              : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                              : (highContrast ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-900')
                           }`}
                         >
                           {action.label}
@@ -157,9 +194,11 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, trustedContacts }) =>
               </div>
             </div>
           ) : (
-            <div className="text-center py-8">
-              <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-              <p className="text-gray-600">Select an alert to view details</p>
+            <div className="text-center py-12">
+              <AlertTriangle className={`w-20 h-20 ${highContrast ? 'text-gray-500' : 'text-gray-400'} mx-auto mb-6`} />
+              <p className={`${highContrast ? 'text-gray-300' : 'text-gray-600'} text-lg`}>
+                Click on an alert to see more details
+              </p>
             </div>
           )}
         </div>
@@ -167,44 +206,82 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, trustedContacts }) =>
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-semibold text-gray-900">Total Calls</h4>
-            <Phone className="w-5 h-5 text-blue-600" />
+        <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-8 rounded-2xl shadow-lg border`}>
+          <div className="flex items-center space-x-4 mb-4">
+            <div className="p-4 bg-blue-100 rounded-xl">
+              <Phone className="w-8 h-8 text-blue-600" />
+            </div>
+            <div>
+              <h4 className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-600'}`}>
+                Total Calls
+              </h4>
+              <p className={`text-4xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
+                {stats.totalCalls}
+              </p>
+            </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{stats.totalCalls}</p>
-          <p className="text-sm text-gray-600 mt-1">This month</p>
+          <p className={`text-base ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>
+            This month
+          </p>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-semibold text-gray-900">Scams Blocked</h4>
-            <Shield className="w-5 h-5 text-red-600" />
+        <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-8 rounded-2xl shadow-lg border`}>
+          <div className="flex items-center space-x-4 mb-4">
+            <div className="p-4 bg-red-100 rounded-xl">
+              <Shield className="w-8 h-8 text-red-600" />
+            </div>
+            <div>
+              <h4 className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-600'}`}>
+                Scams Blocked
+              </h4>
+              <p className={`text-4xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
+                {stats.scamsBlocked}
+              </p>
+            </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{stats.scamsBlocked}</p>
-          <p className="text-sm text-green-600 mt-1">+3 from last week</p>
+          <p className="text-base text-green-600 font-medium">+3 from last week</p>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-semibold text-gray-900">Risk Reduction</h4>
-            <TrendingDown className="w-5 h-5 text-green-600" />
+        <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-8 rounded-2xl shadow-lg border`}>
+          <div className="flex items-center space-x-4 mb-4">
+            <div className="p-4 bg-green-100 rounded-xl">
+              <TrendingDown className="w-8 h-8 text-green-600" />
+            </div>
+            <div>
+              <h4 className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-600'}`}>
+                Risk Reduction
+              </h4>
+              <p className={`text-4xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
+                {stats.riskReduction}%
+              </p>
+            </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{stats.riskReduction}%</p>
-          <p className="text-sm text-gray-600 mt-1">Compared to baseline</p>
+          <p className={`text-base ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>
+            Compared to baseline
+          </p>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-semibold text-gray-900">Response Time</h4>
-            <Clock className="w-5 h-5 text-purple-600" />
+        <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-8 rounded-2xl shadow-lg border`}>
+          <div className="flex items-center space-x-4 mb-4">
+            <div className="p-4 bg-purple-100 rounded-xl">
+              <Clock className="w-8 h-8 text-purple-600" />
+            </div>
+            <div>
+              <h4 className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-600'}`}>
+                Response Time
+              </h4>
+              <p className={`text-4xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
+                {stats.avgResponseTime}s
+              </p>
+            </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{stats.avgResponseTime}s</p>
-          <p className="text-sm text-gray-600 mt-1">Average detection</p>
+          <p className={`text-base ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>
+            Average detection
+          </p>
         </div>
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default AlertsPanel;

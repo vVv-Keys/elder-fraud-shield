@@ -89,13 +89,16 @@ export interface UserSettings {
   voiceAlerts: boolean;
   realTimeAnalysis: boolean;
   emergencyMode: boolean;
+  simplifiedInterface: boolean;
+  largeButtons: boolean;
+  autoBlockKnownScams: boolean;
+  weeklyReports: boolean;
   language: string;
   timezone: string;
   fontSize: 'normal' | 'large' | 'extra-large';
   highContrast: boolean;
-  simplifiedInterface: boolean;
-  autoBlockKnownScams: boolean;
-  weeklyReports: boolean;
+  reducedMotion: boolean;
+  voiceCommands: boolean;
 }
 
 export interface SystemStatus {
@@ -105,4 +108,42 @@ export interface SystemStatus {
   uptime: number;
   callsProcessed: number;
   threatsBlocked: number;
+  organizationId?: string;
+  licenseType: 'basic' | 'professional' | 'enterprise';
+  features: string[];
+}
+
+export interface EnterpriseConfig {
+  organizationId: string;
+  licenseType: 'enterprise';
+  features: {
+    advancedThreatDetection: boolean;
+    realTimeMonitoring: boolean;
+    complianceReporting: boolean;
+    bulkUserManagement: boolean;
+    customIntegrations: boolean;
+    advancedAnalytics: boolean;
+    multiTenantSupport: boolean;
+    ssoIntegration: boolean;
+    auditLogging: boolean;
+    dataRetention: boolean;
+  };
+  security: {
+    encryptionAtRest: boolean;
+    encryptionInTransit: boolean;
+    accessControls: boolean;
+    roleBasedPermissions: boolean;
+    sessionManagement: boolean;
+    ipWhitelisting: boolean;
+    mfaRequired: boolean;
+  };
+  compliance: {
+    gdprCompliant: boolean;
+    hipaaCompliant: boolean;
+    soc2Type2: boolean;
+    iso27001: boolean;
+    dataResidency: boolean;
+    rightToErasure: boolean;
+    dataPortability: boolean;
+  };
 }
