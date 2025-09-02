@@ -47,7 +47,8 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
   // Reset duration when call ends
   useEffect(() => {
     if (!isCallActive) {
-      setCallDuration(0);
+      emergencyContact: true,
+      preferredContactMethod: 'phone' as const
     }
   }, [isCallActive]);
 

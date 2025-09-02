@@ -57,9 +57,12 @@ input[type="range"] {
   background: #E5E7EB;
   border-radius: 4px;
   outline: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
   appearance: none;
   width: 24px;
   height: 24px;

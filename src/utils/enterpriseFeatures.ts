@@ -144,7 +144,9 @@ export class EnterpriseManager {
         version: '1.0.0',
         uptime: 0,
         callsProcessed: 0,
-        threatsBlocked: 0
+        threatsBlocked: 0,
+        licenseType: 'enterprise',
+        features: []
       };
     }
   }

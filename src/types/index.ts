@@ -97,6 +97,7 @@ export interface TrustedContact {
   isPrimary: boolean;
   emergencyContact?: boolean;
   preferredContactMethod: 'phone' | 'email' | 'both';
+  preferredContactMethod: 'phone' | 'email' | 'both';
   timezone?: string;
   notes?: string;
 }

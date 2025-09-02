@@ -26,7 +26,8 @@ function App() {
       phone: '+1 (555) 123-4567',
       email: 'sarah@example.com',
       isPrimary: true,
-      emergencyContact: true
+      emergencyContact: true,
+      preferredContactMethod: 'phone' as const
     },
     {
       id: '2',
@@ -35,7 +36,8 @@ function App() {
       phone: '+1 (555) 987-6543',
       email: 'dr.chen@healthcenter.com',
       isPrimary: false,
-      emergencyContact: false
+      emergencyContact: false,
+      preferredContactMethod: 'phone' as const
     },
     {
       id: '3',
@@ -44,7 +46,8 @@ function App() {
       phone: '+1 (555) 456-7890',
       email: 'tom@example.com',
       isPrimary: true,
-      emergencyContact: true
+      emergencyContact: true,
+      preferredContactMethod: 'phone' as const
     }
   ]);
 
