@@ -16,7 +16,9 @@ const ContactsManager: React.FC<ContactsManagerProps> = ({ contacts, onUpdateCon
     relationship: '',
     phone: '',
     email: '',
-    isPrimary: false
+    isPrimary: false,
+    emergencyContact: false,
+    preferredContactMethod: 'phone' as 'phone' | 'email' | 'both'
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -41,7 +43,7 @@ const ContactsManager: React.FC<ContactsManagerProps> = ({ contacts, onUpdateCon
       setIsAddingContact(false);
     }
     
-    setFormData({ name: '', relationship: '', phone: '', email: '', isPrimary: false });
+    setFormData({ name: '', relationship: '', phone: '', email: '', isPrimary: false, emergencyContact: false, preferredContactMethod: 'phone' });
   };
 
   const handleEdit = (contact: TrustedContact) => {
@@ -51,7 +53,9 @@ const ContactsManager: React.FC<ContactsManagerProps> = ({ contacts, onUpdateCon
       relationship: contact.relationship,
       phone: contact.phone,
       email: contact.email,
-      isPrimary: contact.isPrimary
+      isPrimary: contact.isPrimary,
+      emergencyContact: contact.emergencyContact || false,
+      preferredContactMethod: contact.preferredContactMethod || 'phone'
     });
   };
 
@@ -63,7 +67,15 @@ const ContactsManager: React.FC<ContactsManagerProps> = ({ contacts, onUpdateCon
   const handleCancel = () => {
     setIsAddingContact(false);
     setEditingContact(null);
-    setFormData({ name: '', relationship: '', phone: '', email: '', isPrimary: false });
+    setFormData({ 
+      name: '', 
+      relationship: '', 
+      phone: '', 
+      email: '', 
+      isPrimary: false,
+      emergencyContact: false,
+      preferredContactMethod: 'phone'
+    });
   };
 
   return (
@@ -182,6 +194,19 @@ const ContactsManager: React.FC<ContactsManagerProps> = ({ contacts, onUpdateCon
               </label>
             </div>
             
+            <div className="flex items-center space-x-4 p-4 rounded-xl bg-red-50 border border-red-200">
+              <input
+                type="checkbox"
+                id="emergencyContact"
+                checked={formData.emergencyContact}
+                onChange={(e) => setFormData({ ...formData, emergencyContact: e.target.checked })}
+                className="w-6 h-6 rounded border-gray-300 text-red-600 focus:ring-red-500"
+              />
+              <label htmlFor="emergencyContact" className="text-lg font-semibold text-red-900">
+                🚨 Emergency contact (for urgent situations)
+              </label>
+            </div>
+            
             <div className="flex space-x-4">
               <button
                 type="submit"
@@ -217,7 +242,8 @@ const ContactsManager: React.FC<ContactsManagerProps> = ({ contacts, onUpdateCon
                 <div>
                   <h4 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'} flex items-center space-x-2`}>
                     <span>{contact.name}</span>
-                    {contact.isPrimary && <Star className="w-6 h-6 text-yellow-500 fill-current" />}
+                    {contact.isPrimary && <span className="text-yellow-500">⭐</span>}
+                    {contact.emergencyContact && <span className="text-red-500">🚨</span>}
                   </h4>
                   <p className={`text-lg ${highContrast ? 'text-gray-300' : 'text-gray-600'}`}>
                     {contact.relationship}

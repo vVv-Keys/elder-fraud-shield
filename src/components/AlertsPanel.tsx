@@ -1,287 +1,153 @@
-import React, { useState } from 'react';
-import { AlertTriangle, Phone, Mail, Clock, CheckCircle, X, Shield, TrendingDown } from 'lucide-react';
-import { Alert, TrustedContact } from '../types';
+import { ScamIndicator, SentimentAnalysis } from '../types';
 
-interface AlertsPanelProps {
-  alerts: Alert[];
-  trustedContacts: TrustedContact[];
-  highContrast: boolean;
+export class ScamDetectionEngine {
+  private scamPhrases = [
+    // Urgency tactics
+    'act immediately',
+    'final notice',
+    'limited time',
+    'expires today',
+    'urgent action required',
+    
+    // Authority impersonation
+    'this is the irs',
+    'social security administration',
+    'microsoft support',
+    'your bank',
+    'government agency',
+    
+    // Personal information requests
+    'social security number',
+    'credit card number',
+    'bank account',
+    'password',
+    'pin number',
+    
+    // Financial demands
+    'wire money',
+    'gift cards',
+    'bitcoin',
+    'western union',
+    'money transfer',
+    
+    // Pressure tactics
+    'don\'t hang up',
+    'don\'t tell anyone',
+    'keep this confidential',
+    'arrest warrant',
+    'legal action'
+  ];
+
+  private urgencyWords = [
+    'immediately', 'urgent', 'emergency', 'now', 'quickly',
+    'deadline', 'expires', 'final', 'last chance', 'hurry'
+  ];
+
+  public analyzePhrase(phrase: string): ScamIndicator[] {
+    const indicators: ScamIndicator[] = [];
+    const lowerPhrase = phrase.toLowerCase();
+
+    // Check for scam phrases
+    this.scamPhrases.forEach((scamPhrase, index) => {
+      if (lowerPhrase.includes(scamPhrase)) {
+        indicators.push({
+          id: `indicator-${Date.now()}-${index}`,
+          type: this.categorizePhrase(scamPhrase),
+          phrase: phrase,
+          confidence: this.calculateConfidence(scamPhrase, phrase),
+          timestamp: new Date(),
+          severity: this.calculateSeverity(scamPhrase)
+          context: `Detected suspicious phrase: "${scamPhrase}"`,
+          recommendation: this.getRecommendation(scamPhrase)
+        });
+      }
+    });
+
+    return indicators;
+  }
+
+  public analyzeSentiment(transcript: string[]): SentimentAnalysis {
+    const fullText = transcript.join(' ').toLowerCase();
+    
+    // Simple sentiment analysis (in production, use ML models)
+    const urgencyScore = this.calculateUrgencyScore(fullText);
+    const manipulationScore = this.calculateManipulationScore(fullText);
+    const fearScore = this.calculateFearScore(fullText);
+    const angerScore = this.calculateAngerScore(fullText);
+
+    const overallScore = (urgencyScore + manipulationScore + fearScore + angerScore) / 4;
+    
+    return {
+      overall: overallScore > 0.7 ? 'aggressive' : overallScore > 0.5 ? 'negative' : 'neutral',
+      confidence: Math.min(0.95, overallScore + 0.1),
+      emotions: {
+        urgency: urgencyScore,
+        manipulation: manipulationScore,
+        fear: fearScore,
+        anger: angerScore
+      }
+    };
+  }
+
+  private categorizePhrase(phrase: string): ScamIndicator['type'] {
+    if (phrase.includes('money') || phrase.includes('wire') || phrase.includes('card')) {
+      return 'money_request';
+    }
+    if (phrase.includes('social security') || phrase.includes('account') || phrase.includes('password')) {
+      return 'personal_info';
+    }
+    if (phrase.includes('irs') || phrase.includes('government') || phrase.includes('support')) {
+      return 'authority_claim';
+    }
+    if (phrase.includes('immediately') || phrase.includes('urgent') || phrase.includes('final')) {
+      return 'urgency';
+    }
+    return 'pressure_tactic';
+  }
+
+  private calculateConfidence(scamPhrase: string, fullPhrase: string): number {
+    // Higher confidence for exact matches and context
+    const exactMatch = fullPhrase.toLowerCase().includes(scamPhrase);
+    const contextWords = ['please', 'need', 'must', 'have to', 'required'];
+    const hasContext = contextWords.some(word => fullPhrase.toLowerCase().includes(word));
+    
+    let confidence = exactMatch ? 0.8 : 0.6;
+    if (hasContext) confidence += 0.1;
+    
+    return Math.min(0.95, confidence);
+  }
+
+  private calculateSeverity(phrase: string): ScamIndicator['severity'] {
+    const highRiskPhrases = ['social security', 'wire money', 'arrest warrant', 'legal action'];
+    const mediumRiskPhrases = ['final notice', 'expires today', 'government agency'];
+    
+    if (highRiskPhrases.some(risk => phrase.includes(risk))) return 'high';
+    if (mediumRiskPhrases.some(risk => phrase.includes(risk))) return 'medium';
+    return 'low';
+  }
+
+  private calculateUrgencyScore(text: string): number {
+    const urgencyCount = this.urgencyWords.filter(word => text.includes(word)).length;
+    return Math.min(1, urgencyCount * 0.2);
+  }
+
+  private calculateManipulationScore(text: string): number {
+    const manipulationWords = ['trust me', 'special offer', 'only you', 'secret', 'confidential'];
+    const count = manipulationWords.filter(word => text.includes(word)).length;
+    return Math.min(1, count * 0.25);
+  }
+
+  private calculateFearScore(text: string): number {
+    const fearWords = ['arrest', 'lawsuit', 'police', 'court', 'legal action', 'suspended'];
+    const count = fearWords.filter(word => text.includes(word)).length;
+    return Math.min(1, count * 0.3);
+  }
+
+  private calculateAngerScore(text: string): number {
+    const angerWords = ['stupid', 'idiot', 'listen to me', 'pay attention'];
+    const count = angerWords.filter(word => text.includes(word)).length;
+    return Math.min(1, count * 0.4);
+  }
 }
 
-const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, trustedContacts, highContrast }) => {
-  const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
-
-  const stats = {
-    totalCalls: 47,
-    scamsBlocked: 12,
-    riskReduction: 89,
-    avgResponseTime: 2.3
-  };
-
-  const getAlertIcon = (type: string) => {
-    switch (type) {
-      case 'scam_detected': return AlertTriangle;
-      case 'high_risk': return AlertTriangle;
-      case 'emergency': return Phone;
-      default: return AlertTriangle;
-    }
-  };
-
-  const getAlertColor = (riskLevel: string) => {
-    if (highContrast) {
-      switch (riskLevel) {
-        case 'critical': return 'bg-red-900 border-red-600 text-red-200';
-        case 'high': return 'bg-orange-900 border-orange-600 text-orange-200';
-        case 'medium': return 'bg-yellow-900 border-yellow-600 text-yellow-200';
-        default: return 'bg-blue-900 border-blue-600 text-blue-200';
-      }
-    }
-    
-    switch (riskLevel) {
-      case 'critical': return 'bg-red-50 border-red-200 text-red-800';
-      case 'high': return 'bg-orange-50 border-orange-200 text-orange-800';
-      case 'medium': return 'bg-yellow-50 border-yellow-200 text-yellow-800';
-      default: return 'bg-blue-50 border-blue-200 text-blue-800';
-    }
-  };
-
-  const handleAction = (action: any) => {
-    console.log('Executing action:', action);
-    // In a real app, this would trigger the actual action
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className={`text-3xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
-            Safety Alerts
-          </h2>
-          <p className={`${highContrast ? 'text-gray-300' : 'text-gray-600'} text-lg mt-2`}>
-            Recent warnings and protection updates
-          </p>
-        </div>
-        
-        <div className={`flex items-center space-x-4 px-6 py-3 rounded-xl ${
-          highContrast ? 'bg-gray-800' : 'bg-blue-50'
-        }`}>
-          <span className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-700'}`}>
-            {alerts.filter(a => !a.isRead).length} unread
-          </span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Alerts List */}
-        <div className="lg:col-span-2 space-y-6">
-          {alerts.length === 0 ? (
-            <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-12 rounded-2xl shadow-lg border text-center`}>
-              <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
-              <h3 className={`text-2xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'} mb-4`}>
-                ✅ All Clear
-              </h3>
-              <p className={`${highContrast ? 'text-gray-300' : 'text-gray-600'} text-lg`}>
-                No safety alerts at this time - you're well protected!
-              </p>
-            </div>
-          ) : (
-            alerts.map((alert) => {
-              const Icon = getAlertIcon(alert.type);
-              return (
-                <div
-                  key={alert.id}
-                  className={`p-6 rounded-xl border-2 cursor-pointer transition-all hover:shadow-lg ${
-                    getAlertColor(alert.riskLevel)
-                  } ${!alert.isRead ? 'ring-4 ring-blue-300' : ''}`}
-                  onClick={() => setSelectedAlert(alert)}
-                >
-                  <div className="flex items-start space-x-4">
-                    <Icon className="w-8 h-8 mt-1 flex-shrink-0" />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-xl font-bold">{alert.title}</h4>
-                        <span className="text-lg font-bold uppercase px-3 py-1 rounded-full">
-                          {alert.riskLevel} risk
-                        </span>
-                      </div>
-                      <p className="text-lg mb-4 leading-relaxed">{alert.message}</p>
-                      <div className="flex items-center space-x-6 text-base">
-                        <span className="flex items-center space-x-1">
-                          <Clock className="w-5 h-5" />
-                          <span>{alert.timestamp.toLocaleTimeString()}</span>
-                        </span>
-                        {alert.callId && (
-                          <span className="flex items-center space-x-1">
-                            <Phone className="w-5 h-5" />
-                            <span>Call ID: {alert.callId.slice(-8)}</span>
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        {/* Alert Details */}
-        <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} rounded-2xl shadow-lg border p-8`}>
-          {selectedAlert ? (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
-                  Alert Details
-                </h3>
-                <button
-                  onClick={() => setSelectedAlert(null)}
-                  className={`p-2 ${highContrast ? 'hover:bg-gray-800' : 'hover:bg-gray-100'} rounded-lg transition-colors`}
-                >
-                  <X className={`w-6 h-6 ${highContrast ? 'text-gray-400' : 'text-gray-500'}`} />
-                </button>
-              </div>
-              
-              <div className="space-y-6">
-                <div>
-                  <label className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-700'} block mb-2`}>
-                    Alert Type
-                  </label>
-                  <span className={`inline-block px-4 py-2 rounded-xl text-lg font-bold ${
-                    getAlertColor(selectedAlert.riskLevel)
-                  }`}>
-                    {selectedAlert.type.replace('_', ' ').toUpperCase()}
-                  </span>
-                </div>
-                
-                <div>
-                  <label className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-700'} block mb-2`}>
-                    What Happened
-                  </label>
-                  <p className={`text-lg ${highContrast ? 'text-white' : 'text-gray-900'} leading-relaxed`}>
-                    {selectedAlert.message}
-                  </p>
-                </div>
-                
-                <div>
-                  <label className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-700'} block mb-2`}>When</label>
-                  <p className={`text-lg ${highContrast ? 'text-white' : 'text-gray-900'}`}>{selectedAlert.timestamp.toLocaleString()}</p>
-                </div>
-
-                {selectedAlert.actions && (
-                  <div>
-                    <label className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-700'} block mb-4`}>
-                      What You Can Do
-                    </label>
-                    <div className="space-y-3">
-                      {selectedAlert.actions.map((action) => (
-                        <button
-                          key={action.id}
-                          onClick={() => handleAction(action)}
-                          className={`w-full px-6 py-4 rounded-xl font-bold text-lg transition-colors shadow-lg ${
-                            action.variant === 'danger'
-                              ? 'bg-red-600 hover:bg-red-700 text-white'
-                              : action.variant === 'primary'
-                              ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                              : (highContrast ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-900')
-                          }`}
-                        >
-                          {action.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <AlertTriangle className={`w-20 h-20 ${highContrast ? 'text-gray-500' : 'text-gray-400'} mx-auto mb-6`} />
-              <p className={`${highContrast ? 'text-gray-300' : 'text-gray-600'} text-lg`}>
-                Click on an alert to see more details
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-8 rounded-2xl shadow-lg border`}>
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="p-4 bg-blue-100 rounded-xl">
-              <Phone className="w-8 h-8 text-blue-600" />
-            </div>
-            <div>
-              <h4 className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-600'}`}>
-                Total Calls
-              </h4>
-              <p className={`text-4xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
-                {stats.totalCalls}
-              </p>
-            </div>
-          </div>
-          <p className={`text-base ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>
-            This month
-          </p>
-        </div>
-
-        <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-8 rounded-2xl shadow-lg border`}>
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="p-4 bg-red-100 rounded-xl">
-              <Shield className="w-8 h-8 text-red-600" />
-            </div>
-            <div>
-              <h4 className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-600'}`}>
-                Scams Blocked
-              </h4>
-              <p className={`text-4xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
-                {stats.scamsBlocked}
-              </p>
-            </div>
-          </div>
-          <p className="text-base text-green-600 font-medium">+3 from last week</p>
-        </div>
-
-        <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-8 rounded-2xl shadow-lg border`}>
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="p-4 bg-green-100 rounded-xl">
-              <TrendingDown className="w-8 h-8 text-green-600" />
-            </div>
-            <div>
-              <h4 className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-600'}`}>
-                Risk Reduction
-              </h4>
-              <p className={`text-4xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
-                {stats.riskReduction}%
-              </p>
-            </div>
-          </div>
-          <p className={`text-base ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>
-            Compared to baseline
-          </p>
-        </div>
-
-        <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-8 rounded-2xl shadow-lg border`}>
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="p-4 bg-purple-100 rounded-xl">
-              <Clock className="w-8 h-8 text-purple-600" />
-            </div>
-            <div>
-              <h4 className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-600'}`}>
-                Response Time
-              </h4>
-              <p className={`text-4xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
-                {stats.avgResponseTime}s
-              </p>
-            </div>
-          </div>
-          <p className={`text-base ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>
-            Average detection
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default AlertsPanel;
+export const scamDetector = new ScamDetectionEngine();
