@@ -36,6 +36,16 @@ export interface SentimentAnalysis {
   voiceStress: number;
 }
 
+export interface VoiceAnalysis {
+  isProcessing: boolean;
+  currentPhrase: string;
+  riskScore: number;
+  detectedPatterns: string[];
+  recommendations: string[];
+  confidence: number;
+  processingTime: number;
+}
+
 export interface Alert {
   id: string;
   type: 'scam_detected' | 'high_risk' | 'suspicious_activity' | 'emergency' | 'safe_call' | 'blocked_call';
@@ -58,29 +68,6 @@ export interface AlertAction {
   description: string;
 }
 
-export interface TrustedContact {
-  id: string;
-  name: string;
-  relationship: string;
-  phone: string;
-  email: string;
-  isPrimary: boolean;
-  emergencyContact: boolean;
-  preferredContactMethod: 'phone' | 'email' | 'both';
-  timezone?: string;
-  notes?: string;
-}
-
-export interface VoiceAnalysis {
-  isProcessing: boolean;
-  currentPhrase: string;
-  riskScore: number;
-  detectedPatterns: string[];
-  recommendations: string[];
-  confidence: number;
-  processingTime: number;
-}
-
 export interface UserSettings {
   sensitivity: number;
   autoHangup: boolean;
@@ -99,6 +86,19 @@ export interface UserSettings {
   highContrast: boolean;
   reducedMotion: boolean;
   voiceCommands: boolean;
+}
+
+export interface TrustedContact {
+  id: string;
+  name: string;
+  relationship: string;
+  phone: string;
+  email: string;
+  isPrimary: boolean;
+  emergencyContact?: boolean;
+  preferredContactMethod: 'phone' | 'email' | 'both';
+  timezone?: string;
+  notes?: string;
 }
 
 export interface SystemStatus {

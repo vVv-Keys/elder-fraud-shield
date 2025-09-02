@@ -164,45 +164,23 @@ const EmergencyPanel: React.FC<EmergencyPanelProps> = ({ trustedContacts, onClos
             )}
           </div>
 
-          {/* FAQ Quick Access */}
+          {/* Quick Help */}
           <div>
             <h3 className={`text-2xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'} mb-6`}>
-              ❓ Common Questions
+              ❓ Quick Help
             </h3>
             
-            <div className="space-y-4">
-              {filteredFaqs.slice(0, 3).map((faq) => (
-                <div
-                  key={faq.id}
-                  className={`border-2 rounded-xl ${
-                    highContrast ? 'border-gray-600' : 'border-gray-200'
-                  }`}
-                >
-                  <button
-                    onClick={() => setExpandedFaq(expandedFaq === faq.id ? null : faq.id)}
-                    className={`w-full p-6 text-left flex items-center justify-between ${
-                      highContrast ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
-                    } transition-colors rounded-xl`}
-                  >
-                    <span className={`text-lg font-semibold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
-                      {faq.question}
-                    </span>
-                    {expandedFaq === faq.id ? (
-                      <ChevronDown className={`w-6 h-6 ${highContrast ? 'text-gray-400' : 'text-gray-500'}`} />
-                    ) : (
-                      <ChevronRight className={`w-6 h-6 ${highContrast ? 'text-gray-400' : 'text-gray-500'}`} />
-                    )}
-                  </button>
-                  
-                  {expandedFaq === faq.id && (
-                    <div className={`px-6 pb-6 border-t ${highContrast ? 'border-gray-600' : 'border-gray-200'}`}>
-                      <p className={`${highContrast ? 'text-gray-300' : 'text-gray-700'} text-lg leading-relaxed mt-4`}>
-                        {faq.answer}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))}
+            <div className={`p-6 rounded-xl border-2 ${
+              highContrast ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-300'
+            }`}>
+              <h4 className={`text-lg font-bold ${highContrast ? 'text-white' : 'text-gray-900'} mb-3`}>
+                If you think this is a scam call:
+              </h4>
+              <ol className={`space-y-2 text-lg ${highContrast ? 'text-gray-300' : 'text-gray-700'}`}>
+                <li>1. 🛑 Hang up immediately</li>
+                <li>2. 📞 Call your family using the buttons above</li>
+                <li>3. 📝 Don't worry - you did the right thing</li>
+              </ol>
             </div>
           </div>
         </div>
