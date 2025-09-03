@@ -92,7 +92,7 @@ const ContactsManager: React.FC<ContactsManagerProps> = ({ contacts, onUpdateCon
         
         <button
           onClick={() => setIsAddingContact(true)}
-          className="flex items-center space-x-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl transition-colors shadow-lg text-lg font-bold"
+          className="flex items-center space-x-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-105 text-lg font-bold"
         >
           <Plus className="w-6 h-6" />
           <span>Add Family Member</span>
@@ -210,7 +210,7 @@ const ContactsManager: React.FC<ContactsManagerProps> = ({ contacts, onUpdateCon
             <div className="flex space-x-4">
               <button
                 type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl transition-colors font-bold text-lg shadow-lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 {editingContact ? 'Save Changes' : 'Add This Person'}
               </button>
@@ -231,10 +231,10 @@ const ContactsManager: React.FC<ContactsManagerProps> = ({ contacts, onUpdateCon
       {/* Contacts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {contacts.map((contact) => (
-          <div key={contact.id} className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-8 rounded-2xl shadow-lg border hover:shadow-xl transition-shadow`}>
+          <div key={contact.id} className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-8 rounded-2xl shadow-lg border hover:shadow-xl transition-all transform hover:scale-102`}>
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow">
                   <span className="text-white font-bold text-xl">
                     {contact.name.split(' ').map(n => n[0]).join('')}
                   </span>
@@ -285,9 +285,9 @@ const ContactsManager: React.FC<ContactsManagerProps> = ({ contacts, onUpdateCon
             <div className={`mt-6 pt-6 border-t ${highContrast ? 'border-gray-600' : 'border-gray-200'}`}>
               <button 
                 onClick={() => console.log(`Testing notification to ${contact.name}`)}
-                className={`w-full ${
+                className={`w-full transition-all hover:shadow-lg transform hover:scale-105 ${
                 highContrast ? 'bg-blue-900 hover:bg-blue-800 text-blue-200' : 'bg-blue-50 hover:bg-blue-100 text-blue-700'
-              } py-4 rounded-xl transition-colors text-lg font-semibold`}
+              } py-4 rounded-xl text-lg font-semibold`}
               >
                 📧 Send Test Message
               </button>

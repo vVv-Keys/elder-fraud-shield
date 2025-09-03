@@ -70,7 +70,7 @@ const RealTimeAnalysis: React.FC<RealTimeAnalysisProps> = ({ analysis, highContr
               </div>
               <div className={`w-full ${highContrast ? 'bg-gray-700' : 'bg-gray-200'} rounded-full h-4 shadow-inner`}>
                 <div
-                  className={`h-4 rounded-full transition-all duration-1000 ${getRiskBarColor(analysis.riskScore)}`}
+                  className={`h-4 rounded-full transition-all duration-1000 ${getRiskBarColor(analysis.riskScore)} shadow-sm`}
                   style={{ width: `${analysis.riskScore}%` }}
                 ></div>
               </div>
@@ -111,7 +111,7 @@ const RealTimeAnalysis: React.FC<RealTimeAnalysisProps> = ({ analysis, highContr
           {analysis.recommendations.map((recommendation, index) => (
             <div key={index} className={`flex items-start space-x-4 p-4 rounded-xl border-2 ${
               highContrast ? 'bg-blue-900 border-blue-700' : 'bg-blue-50 border-blue-200'
-            }`}>
+            } shadow-sm hover:shadow-md transition-shadow`}>
               <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                 <span className="text-white font-bold text-sm">{index + 1}</span>
               </div>

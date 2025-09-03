@@ -111,7 +111,7 @@ const HelpCenter: React.FC<HelpCenterProps> = ({ highContrast }) => {
             <a
               key={action.title}
               href={action.action}
-              className={`${action.color} text-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 block text-center`}
+              className={`${action.color} text-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 active:scale-95 block text-center`}
             >
               <Icon className="w-12 h-12 mx-auto mb-4" />
               <h3 className="text-xl font-bold mb-2">{action.title}</h3>
@@ -151,9 +151,9 @@ const HelpCenter: React.FC<HelpCenterProps> = ({ highContrast }) => {
             return (
               <div
                 key={tutorial.title}
-                className={`p-6 rounded-xl border-2 ${
+                className={`p-6 rounded-xl border-2 transition-all hover:shadow-lg transform hover:scale-102 ${
                   highContrast ? 'bg-gray-800 border-gray-600 hover:bg-gray-700' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                } transition-colors cursor-pointer`}
+                } cursor-pointer`}
               >
                 <Icon className={`w-10 h-10 ${highContrast ? 'text-blue-400' : 'text-blue-600'} mb-4`} />
                 <h4 className={`text-lg font-bold ${highContrast ? 'text-white' : 'text-gray-900'} mb-2`}>
@@ -187,9 +187,9 @@ const HelpCenter: React.FC<HelpCenterProps> = ({ highContrast }) => {
             >
               <button
                 onClick={() => setExpandedFaq(expandedFaq === faq.id ? null : faq.id)}
-                className={`w-full p-6 text-left flex items-center justify-between ${
+                className={`w-full p-6 text-left flex items-center justify-between transition-all hover:shadow-sm ${
                   highContrast ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
-                } transition-colors rounded-xl`}
+                } rounded-xl`}
               >
                 <span className={`text-lg font-semibold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
                   {faq.question}

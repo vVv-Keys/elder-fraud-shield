@@ -132,7 +132,7 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, trustedContacts, high
           filteredAlerts.map((alert) => (
             <div
               key={alert.id}
-              className={`p-8 rounded-2xl border-2 shadow-lg ${getAlertColor(alert.riskLevel)} ${
+              className={`p-8 rounded-2xl border-2 shadow-lg hover:shadow-xl transition-all ${getAlertColor(alert.riskLevel)} ${
                 !alert.isRead ? 'ring-4 ring-blue-200' : ''
               }`}
             >
@@ -165,7 +165,7 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, trustedContacts, high
                     <button
                       key={action.id}
                       onClick={() => handleAlertAction(alert.id, action.type)}
-                      className={`px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105 ${
+                      className={`px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 ${
                         action.variant === 'danger' ? 'bg-red-600 hover:bg-red-700 text-white' :
                         action.variant === 'primary' ? 'bg-blue-600 hover:bg-blue-700 text-white' :
                         action.variant === 'success' ? 'bg-green-600 hover:bg-green-700 text-white' :

@@ -316,7 +316,7 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
         <div className="p-8">
           {!isCallActive ? (
             <div className="text-center py-16">
-              <div className={`w-32 h-32 ${highContrast ? 'bg-gray-800' : 'bg-gray-100'} rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg`}>
+              <div className={`w-32 h-32 ${highContrast ? 'bg-gray-800' : 'bg-gray-100'} rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg hover:shadow-xl transition-all transform hover:scale-105`}>
                 <Phone className={`w-16 h-16 ${highContrast ? 'text-gray-400' : 'text-gray-400'}`} />
               </div>
               <h3 className={`text-2xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'} mb-4`}>
@@ -324,38 +324,38 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
               </h3>
               <p className={`${highContrast ? 'text-gray-300' : 'text-gray-600'} mb-8 text-lg max-w-md mx-auto`}>
                 ScamGuard is actively monitoring for incoming calls. When a call comes in, 
-                our AI will analyze it in real-time to keep you safe.
+                our AI will analyze it in real-time to keep you safe from scammers.
               </p>
               
               <div className="space-y-4">
                 <button
                   onClick={simulateIncomingCall}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-colors shadow-lg hover:shadow-xl"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                 >
                   🎭 Try Demo Call
                 </button>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <button
                     onClick={() => simulateSpecificScam('irs')}
-                    className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-semibold transition-all hover:shadow-lg transform hover:scale-105"
                   >
                     📋 IRS Tax Scam
                   </button>
                   <button
                     onClick={() => simulateSpecificScam('tech')}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-all hover:shadow-lg transform hover:scale-105"
                   >
                     💻 Tech Support
                   </button>
                   <button
                     onClick={() => simulateSpecificScam('bank')}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-all hover:shadow-lg transform hover:scale-105"
                   >
                     🏦 Bank Fraud
                   </button>
                 </div>
                 <p className={`text-sm ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>
-                  Test how ScamGuard protects you
+                  ✨ Test how ScamGuard protects you from different scam types
                 </p>
               </div>
             </div>

@@ -457,7 +457,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             handleSettingChange('fontSize', 'large');
             handleSettingChange('largeButtons', true);
           }}
-          className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-colors shadow-lg"
+          className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
         >
           ⚡ Apply Recommended Settings
         </button>

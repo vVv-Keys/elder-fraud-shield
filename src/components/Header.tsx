@@ -21,10 +21,10 @@ const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg">
-                <Shield className="w-10 h-10 text-white" />
+                <Shield className="w-10 h-10 text-white drop-shadow-sm" />
               </div>
               <div>
-                <h1 className={`text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent`}>
+                <h1 className={`text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent drop-shadow-sm`}>
                   ScamGuard AI
                 </h1>
                 <p className={`text-lg ${highContrast ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -72,7 +72,7 @@ const Header: React.FC<HeaderProps> = ({
             {/* Status Indicator */}
             <div className={`flex items-center space-x-3 px-4 py-3 rounded-xl border ${
               highContrast ? 'bg-green-900 border-green-700' : 'bg-green-50 border-green-200'
-            }`}>
+            } shadow-sm hover:shadow-md transition-shadow`}>
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
               <div>
                 <span className={`text-lg font-bold ${highContrast ? 'text-green-300' : 'text-green-700'}`}>
@@ -87,7 +87,7 @@ const Header: React.FC<HeaderProps> = ({
             {/* User Profile */}
             <div className={`flex items-center space-x-3 px-4 py-3 rounded-xl ${
               highContrast ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-50 hover:bg-gray-100'
-            } transition-colors cursor-pointer`}>
+            } transition-all cursor-pointer shadow-sm hover:shadow-md`}>
               <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-lg">MS</span>
               </div>

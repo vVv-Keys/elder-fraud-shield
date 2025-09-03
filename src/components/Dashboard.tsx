@@ -75,7 +75,7 @@ const Dashboard: React.FC<DashboardProps> = ({ alerts, highContrast }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-8 rounded-2xl shadow-lg border`}>
           <div className="flex items-center space-x-4 mb-4">
-            <div className="p-4 bg-blue-100 rounded-xl">
+            <div className="p-4 bg-blue-100 rounded-xl shadow-sm">
               <Phone className="w-8 h-8 text-blue-600" />
             </div>
             <div>
@@ -94,7 +94,7 @@ const Dashboard: React.FC<DashboardProps> = ({ alerts, highContrast }) => {
 
         <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-8 rounded-2xl shadow-lg border`}>
           <div className="flex items-center space-x-4 mb-4">
-            <div className="p-4 bg-red-100 rounded-xl">
+            <div className="p-4 bg-red-100 rounded-xl shadow-sm">
               <XCircle className="w-8 h-8 text-red-600" />
             </div>
             <div>
@@ -113,7 +113,7 @@ const Dashboard: React.FC<DashboardProps> = ({ alerts, highContrast }) => {
 
         <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-8 rounded-2xl shadow-lg border`}>
           <div className="flex items-center space-x-4 mb-4">
-            <div className="p-4 bg-green-100 rounded-xl">
+            <div className="p-4 bg-green-100 rounded-xl shadow-sm">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
             <div>
@@ -132,7 +132,7 @@ const Dashboard: React.FC<DashboardProps> = ({ alerts, highContrast }) => {
 
         <div className={`${highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-8 rounded-2xl shadow-lg border`}>
           <div className="flex items-center space-x-4 mb-4">
-            <div className="p-4 bg-purple-100 rounded-xl">
+            <div className="p-4 bg-purple-100 rounded-xl shadow-sm">
               <TrendingDown className="w-8 h-8 text-purple-600" />
             </div>
             <div>
@@ -252,7 +252,7 @@ const Dashboard: React.FC<DashboardProps> = ({ alerts, highContrast }) => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
-            <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg hover:shadow-xl transition-shadow">
               <Shield className="w-12 h-12 text-green-600" />
             </div>
             <h4 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'} mb-2`}>
@@ -264,7 +264,7 @@ const Dashboard: React.FC<DashboardProps> = ({ alerts, highContrast }) => {
           </div>
           
           <div className="text-center">
-            <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg hover:shadow-xl transition-shadow">
               <Clock className="w-12 h-12 text-blue-600" />
             </div>
             <h4 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'} mb-2`}>
@@ -276,7 +276,7 @@ const Dashboard: React.FC<DashboardProps> = ({ alerts, highContrast }) => {
           </div>
           
           <div className="text-center">
-            <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg hover:shadow-xl transition-shadow">
               <TrendingDown className="w-12 h-12 text-purple-600" />
             </div>
             <h4 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'} mb-2`}>

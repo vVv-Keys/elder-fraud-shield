@@ -128,7 +128,7 @@ const EmergencyPanel: React.FC<EmergencyPanelProps> = ({ trustedContacts, onClos
                       <button
                         onClick={() => handleEmergencyContact(contact)}
                         disabled={isContacting}
-                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-4 rounded-xl font-bold text-lg transition-colors shadow-lg flex items-center justify-center space-x-3"
+                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none flex items-center justify-center space-x-3"
                       >
                         {isContacting ? (
                           <>

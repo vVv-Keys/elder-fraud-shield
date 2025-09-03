@@ -103,7 +103,7 @@ const ScamIndicators: React.FC<ScamIndicatorsProps> = ({ callData, highContrast 
           return (
             <div
               key={indicator.id}
-              className={`p-6 rounded-xl border-2 ${getIndicatorColor(indicator.severity)} shadow-md`}
+              className={`p-6 rounded-xl border-2 ${getIndicatorColor(indicator.severity)} shadow-md hover:shadow-lg transition-shadow`}
             >
               <div className="flex items-start space-x-4">
                 <div className="flex-shrink-0">
@@ -135,7 +135,7 @@ const ScamIndicators: React.FC<ScamIndicatorsProps> = ({ callData, highContrast 
                     
                     <div className={`p-4 rounded-lg ${
                       highContrast ? 'bg-blue-900 border-blue-700' : 'bg-blue-50 border-blue-200'
-                    } border`}>
+                    } border shadow-sm`}>
                       <p className="font-semibold text-base mb-1">💡 What you should do:</p>
                       <p className={`text-lg font-medium ${highContrast ? 'text-blue-200' : 'text-blue-800'}`}>
                         {indicator.recommendation}

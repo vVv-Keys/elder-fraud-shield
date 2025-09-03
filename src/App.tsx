@@ -134,7 +134,7 @@ function App() {
                   <li key={item.id}>
                     <button
                       onClick={() => setActiveTab(item.id as any)}
-                      className={`w-full flex items-center space-x-4 px-6 py-4 rounded-xl transition-all duration-200 text-left ${
+                      className={`w-full flex items-center space-x-4 px-6 py-4 rounded-xl transition-all duration-200 text-left transform hover:scale-102 ${
                         activeTab === item.id
                           ? `${highContrast ? 'bg-blue-800 text-white' : 'bg-blue-50 text-blue-700'} border-l-4 border-blue-600 shadow-md`
                           : `${highContrast ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-700 hover:bg-gray-50'} hover:shadow-sm`
@@ -154,11 +154,11 @@ function App() {
             </ul>
 
             {/* Emergency Button */}
-            <div className="mt-8 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+            <div className="mt-8 p-4 bg-red-50 border-2 border-red-200 rounded-xl shadow-lg">
               <button
                 data-emergency-button
                 onClick={() => setShowEmergencyPanel(true)}
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-4 px-6 rounded-lg font-bold text-lg transition-colors shadow-lg"
+                className="w-full bg-red-600 hover:bg-red-700 text-white py-4 px-6 rounded-lg font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 pulse-on-hover"
               >
                 🚨 EMERGENCY HELP
               </button>
