@@ -3,6 +3,7 @@ import { Mic, MicOff, Phone, PhoneOff, AlertTriangle, Shield, Volume2, Play, Pau
 import { CallData, Alert, VoiceAnalysis } from '../types';
 import RealTimeAnalysis from './RealTimeAnalysis';
 import ScamIndicators from './ScamIndicators';
+import { scamDetector } from '../utils/scamDetection';
 
 interface VoicePipelineProps {
   onCallStart: (callData: CallData) => void;
@@ -47,8 +48,7 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
   // Reset duration when call ends
   useEffect(() => {
     if (!isCallActive) {
-      emergencyContact: true,
-      preferredContactMethod: 'phone' as const
+      setCallDuration(0);
     }
   }, [isCallActive]);
 

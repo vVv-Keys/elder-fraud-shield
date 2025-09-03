@@ -283,9 +283,12 @@ const ContactsManager: React.FC<ContactsManagerProps> = ({ contacts, onUpdateCon
             </div>
             
             <div className={`mt-6 pt-6 border-t ${highContrast ? 'border-gray-600' : 'border-gray-200'}`}>
-              <button className={`w-full ${
+              <button 
+                onClick={() => console.log(`Testing notification to ${contact.name}`)}
+                className={`w-full ${
                 highContrast ? 'bg-blue-900 hover:bg-blue-800 text-blue-200' : 'bg-blue-50 hover:bg-blue-100 text-blue-700'
-              } py-4 rounded-xl transition-colors text-lg font-semibold`}>
+              } py-4 rounded-xl transition-colors text-lg font-semibold`}
+              >
                 📧 Send Test Message
               </button>
             </div>

@@ -9,6 +9,7 @@ import SettingsPanel from './components/SettingsPanel';
 import HelpCenter from './components/HelpCenter';
 import EmergencyPanel from './components/EmergencyPanel';
 import { CallData, Alert, TrustedContact } from './types';
+import { accessibilityManager } from './utils/accessibilityManager';
 
 function App() {
   const [activeTab, setActiveTab] = useState<'monitor' | 'dashboard' | 'alerts' | 'contacts' | 'settings' | 'help'>('monitor');
@@ -51,8 +52,26 @@ function App() {
     }
   ]);
 
+  // Initialize accessibility features
+  useEffect(() => {
+    accessibilityManager.setupKeyboardShortcuts();
+  }, []);
   const handleNewAlert = (alert: Alert) => {
     setAlerts(prev => [alert, ...prev]);
+    
+    // Announce alert to screen readers
+    accessibilityManager.announceToScreenReader(
+      `New ${alert.riskLevel} risk alert: ${alert.title}`,
+      alert.riskLevel === 'critical' ? 'assertive' : 'polite'
+    );
+    
+    // Speak critical alerts
+    if (alert.riskLevel === 'critical' || alert.riskLevel === 'high') {
+      accessibilityManager.speak(
+        `Warning: ${alert.title}. ${alert.message}`,
+        alert.riskLevel === 'critical' ? 'emergency' : 'high'
+      );
+    }
     
     // Show emergency panel for critical alerts
     if (alert.riskLevel === 'critical') {
@@ -176,7 +195,6 @@ function App() {
                 alerts={alerts} 
                 trustedContacts={trustedContacts}
                 highContrast={highContrast}
-                highContrast={highContrast}
               />
             )}
             
@@ -185,16 +203,12 @@ function App() {
                 contacts={trustedContacts}
                 onUpdateContacts={setTrustedContacts}
                 highContrast={highContrast}
-                highContrast={highContrast}
               />
             )}
             
             {activeTab === 'settings' && (
               <SettingsPanel 
                 highContrast={highContrast}
-                fontSize={fontSize}
-                onFontSizeChange={setFontSize}
-                onHighContrastChange={setHighContrast}
                 fontSize={fontSize}
                 onFontSizeChange={setFontSize}
                 onHighContrastChange={setHighContrast}

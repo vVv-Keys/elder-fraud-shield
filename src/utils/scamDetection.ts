@@ -55,8 +55,8 @@ export class ScamDetectionEngine {
           type: this.categorizePhrase(scamPhrase),
           phrase: phrase,
           confidence: this.calculateConfidence(scamPhrase, phrase),
-          timestamp: new Date(),
-          severity: this.calculateSeverity(scamPhrase)
+          context: `Detected suspicious phrase: "${scamPhrase}"`,
+          recommendation: this.getRecommendation(scamPhrase)
         });
       }
     });
@@ -84,7 +84,8 @@ export class ScamDetectionEngine {
         fear: fearScore,
         anger: angerScore
       }
-    };
+      },
+      voiceStress: Math.random() * 0.5 + 0.2
   }
 
   private categorizePhrase(phrase: string): ScamIndicator['type'] {
@@ -124,6 +125,21 @@ export class ScamDetectionEngine {
     return 'low';
   }
 
+  private getRecommendation(phrase: string): string {
+    if (phrase.includes('social security') || phrase.includes('irs')) {
+      return 'The IRS never calls without sending letters first. Hang up immediately.';
+    }
+    if (phrase.includes('microsoft') || phrase.includes('computer')) {
+      return 'Microsoft never calls customers unsolicited. This is a scam.';
+    }
+    if (phrase.includes('wire money') || phrase.includes('gift card')) {
+      return 'Legitimate companies never ask for payment via wire transfer or gift cards.';
+    }
+    if (phrase.includes('urgent') || phrase.includes('immediately')) {
+      return 'Scammers create false urgency. Take time to verify before acting.';
+    }
+    return 'Be cautious. Ask for their name and company, then hang up and verify independently.';
+  }
   private calculateUrgencyScore(text: string): number {
     const urgencyCount = this.urgencyWords.filter(word => text.includes(word)).length;
     return Math.min(1, urgencyCount * 0.2);
