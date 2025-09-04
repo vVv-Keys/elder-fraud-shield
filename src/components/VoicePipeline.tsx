@@ -4,6 +4,8 @@ import { CallData, Alert, VoiceAnalysis } from '../types';
 import RealTimeAnalysis from './RealTimeAnalysis';
 import ScamIndicators from './ScamIndicators';
 import { scamDetector } from '../utils/scamDetection';
+import { voiceAI } from '../services/voiceAI';
+import { llmService } from '../services/llmService';
 
 interface VoicePipelineProps {
   onCallStart: (callData: CallData) => void;
@@ -33,6 +35,8 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
     confidence: 0,
     processingTime: 0
   });
+  const [isVoiceAIActive, setIsVoiceAIActive] = useState(false);
+  const [realTimeTranscript, setRealTimeTranscript] = useState('');
 
   // Update call duration
   useEffect(() => {
@@ -109,6 +113,7 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
     
     onCallStart(mockCall);
     setIsListening(true);
+    startRealTimeVoiceAnalysis();
     
     // Simulate progressive scam detection
     setTimeout(() => {
@@ -237,6 +242,7 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
   const handleEndCall = () => {
     onCallEnd();
     setIsListening(false);
+    stopRealTimeVoiceAnalysis();
     setVoiceAnalysis({
       isProcessing: false,
       currentPhrase: '',
@@ -246,6 +252,7 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
       confidence: 0,
       processingTime: 0
     });
+    setRealTimeTranscript('');
   };
 
   // Enhanced real-time voice analysis simulation
@@ -299,6 +306,72 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
 
     return () => clearInterval(interval);
   }, [isCallActive]);
+
+  // Real-time voice AI analysis
+  const startRealTimeVoiceAnalysis = async () => {
+    if (!voiceAI.isSupported()) {
+      console.warn('Voice recognition not supported in this browser');
+      return;
+    }
+
+    setIsVoiceAIActive(true);
+    
+    try {
+      await voiceAI.startVoiceAnalysis(
+        (transcript) => {
+          setRealTimeTranscript(transcript);
+        },
+        async (analysis) => {
+          // Update voice analysis with AI results
+          setVoiceAnalysis(prev => ({
+            ...prev,
+            isProcessing: true,
+            currentPhrase: analysis.transcript,
+            riskScore: analysis.scamProbability * 100,
+            detectedPatterns: analysis.detectedPatterns,
+            recommendations: analysis.recommendations,
+            confidence: analysis.confidence,
+            processingTime: 1.2
+          }));
+
+          // Generate alert if high risk detected
+          if (analysis.scamProbability > 0.7) {
+            const alert: Alert = {
+              id: `ai-alert-${Date.now()}`,
+              type: 'scam_detected',
+              title: `🤖 AI DETECTED: High Risk Scam Call`,
+              message: `Our AI has detected a ${Math.round(analysis.scamProbability * 100)}% chance this is a scam. ${analysis.recommendations[0]}`,
+              timestamp: new Date(),
+              riskLevel: analysis.scamProbability > 0.8 ? 'critical' : 'high',
+              callId: currentCall?.id,
+              isRead: false,
+              priority: 'urgent',
+              actions: [
+                { 
+                  id: '1', 
+                  label: '🛑 HANG UP NOW', 
+                  type: 'hang_up', 
+                  variant: 'danger',
+                  description: 'AI recommends ending this call immediately'
+                }
+              ]
+            };
+            onNewAlert(alert);
+          }
+        },
+        (error) => {
+          console.error('Voice AI error:', error);
+        }
+      );
+    } catch (error) {
+      console.error('Failed to start voice AI:', error);
+    }
+  };
+
+  const stopRealTimeVoiceAnalysis = () => {
+    setIsVoiceAIActive(false);
+    voiceAI.stopVoiceAnalysis();
+  };
 
   return (
     <div className="space-y-8">
@@ -392,6 +465,12 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
                       }`}>
                         Duration: {formatDuration(callDuration)}
                       </p>
+                      {isVoiceAIActive && (
+                        <p className="text-sm text-purple-600 font-medium flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                          <span>🤖 AI is listening and analyzing</span>
+                        </p>
+                      )}
                     </div>
                   </div>
                   
