@@ -1,5 +1,5 @@
 import React from 'react';
-import { Brain, TrendingUp, AlertCircle, CheckCircle, Clock, Target } from 'lucide-react';
+import { Brain, TrendingUp, AlertCircle, CheckCircle, Clock, Target, Shield } from 'lucide-react';
 import { VoiceAnalysis } from '../types';
 
 interface RealTimeAnalysisProps {
