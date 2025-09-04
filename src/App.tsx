@@ -218,6 +218,10 @@ function App() {
             {activeTab === 'help' && (
               <HelpCenter highContrast={highContrast} />
             )}
+
+            {activeTab === 'enterprise' && (
+              <EnterpriseMonitor highContrast={highContrast} />
+            )}
           </div>
         </main>
       </div>

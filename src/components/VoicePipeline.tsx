@@ -430,6 +430,16 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
                 <p className={`text-sm ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>
                   ✨ Test how ScamGuard protects you from different scam types
                 </p>
+                
+                <div className={`mt-6 p-4 rounded-xl ${highContrast ? 'bg-purple-900 border-purple-700' : 'bg-purple-50 border-purple-200'} border`}>
+                  <h4 className={`text-lg font-bold ${highContrast ? 'text-purple-200' : 'text-purple-900'} mb-2`}>
+                    🤖 AI Voice Detection Active
+                  </h4>
+                  <p className={`${highContrast ? 'text-purple-300' : 'text-purple-700'}`}>
+                    Advanced AI models are ready to analyze speech patterns, detect emotional manipulation, 
+                    and identify scam tactics in real-time.
+                  </p>
+                </div>
               </div>
             </div>
           ) : (
