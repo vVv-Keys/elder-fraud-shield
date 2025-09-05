@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Phone, AlertTriangle, Users, BarChart3, Settings, HelpCircle } from 'lucide-react';
+import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/Header';
 import VoicePipeline from './components/VoicePipeline';
 import Dashboard from './components/Dashboard';
@@ -105,6 +106,7 @@ function App() {
   };
 
   return (
+    <ErrorBoundary>
     <div className={`min-h-screen ${highContrast ? 'bg-black text-white' : 'bg-gradient-to-br from-slate-50 to-blue-50'} ${fontSizeClasses[fontSize]}`}>
       <Header 
         fontSize={fontSize}
@@ -235,6 +237,7 @@ function App() {
         />
       )}
     </div>
+    </ErrorBoundary>
   );
 }
 

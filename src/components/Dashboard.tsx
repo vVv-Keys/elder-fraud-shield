@@ -256,10 +256,11 @@ const Dashboard: React.FC<DashboardProps> = ({ alerts, highContrast }) => {
               <Shield className="w-12 h-12 text-green-600" />
             </div>
             <h4 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'} mb-2`}>
-              Excellent Protection
+              {stats.riskReduction >= 90 ? 'Excellent Protection' : 
+               stats.riskReduction >= 75 ? 'Good Protection' : 'Basic Protection'}
             </h4>
             <p className={`${highContrast ? 'text-gray-300' : 'text-gray-600'} text-lg`}>
-              You're well protected against phone scams
+              {stats.riskReduction}% of threats successfully blocked
             </p>
           </div>
           

@@ -423,6 +423,22 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           💡 Recommended Settings for Best Protection
         </h3>
         
+        <div className={`mb-6 p-4 rounded-xl ${
+          settings.sensitivity >= 85 && settings.autoBlockKnownScams && settings.voiceAlerts
+            ? (highContrast ? 'bg-green-900 border-green-700' : 'bg-green-50 border-green-200')
+            : (highContrast ? 'bg-orange-900 border-orange-700' : 'bg-orange-50 border-orange-200')
+        } border`}>
+          <p className={`text-lg font-bold ${
+            settings.sensitivity >= 85 && settings.autoBlockKnownScams && settings.voiceAlerts
+              ? (highContrast ? 'text-green-200' : 'text-green-800')
+              : (highContrast ? 'text-orange-200' : 'text-orange-800')
+          }`}>
+            {settings.sensitivity >= 85 && settings.autoBlockKnownScams && settings.voiceAlerts
+              ? '✅ Your settings provide excellent protection!'
+              : '⚠️ Consider updating your settings for better protection'}
+          </p>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h4 className={`text-lg font-bold ${highContrast ? 'text-blue-300' : 'text-blue-800'} mb-3`}>

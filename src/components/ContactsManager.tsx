@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Users, Plus, Edit, Trash2, Phone, Mail, Star } from 'lucide-react';
 import { TrustedContact } from '../types';
+import { notificationService } from '../utils/notificationService';
 
 interface ContactsManagerProps {
   contacts: TrustedContact[];
@@ -284,7 +285,18 @@ const ContactsManager: React.FC<ContactsManagerProps> = ({ contacts, onUpdateCon
             
             <div className={`mt-6 pt-6 border-t ${highContrast ? 'border-gray-600' : 'border-gray-200'}`}>
               <button 
-                onClick={() => console.log(`Testing notification to ${contact.name}`)}
+                onClick={async () => {
+                  try {
+                    const success = await notificationService.testNotification(contact);
+                    if (success) {
+                      alert(`✅ Test message sent to ${contact.name}!`);
+                    } else {
+                      alert(`❌ Failed to send test message to ${contact.name}`);
+                    }
+                  } catch (error) {
+                    alert(`❌ Error sending test message: ${error}`);
+                  }
+                }}
                 className={`w-full transition-all hover:shadow-lg transform hover:scale-105 ${
                 highContrast ? 'bg-blue-900 hover:bg-blue-800 text-blue-200' : 'bg-blue-50 hover:bg-blue-100 text-blue-700'
               } py-4 rounded-xl text-lg font-semibold`}
@@ -294,6 +306,26 @@ const ContactsManager: React.FC<ContactsManagerProps> = ({ contacts, onUpdateCon
             </div>
           </div>
         ))}
+        
+        {contacts.length === 0 && (
+          <div className={`col-span-full text-center py-16 ${
+            highContrast ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'
+          } rounded-2xl border shadow-lg`}>
+            <Users className={`w-20 h-20 ${highContrast ? 'text-gray-400' : 'text-gray-400'} mx-auto mb-6`} />
+            <h3 className={`text-2xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'} mb-4`}>
+              No Family Contacts Yet
+            </h3>
+            <p className={`${highContrast ? 'text-gray-300' : 'text-gray-600'} text-lg mb-6`}>
+              Add your family members so they can help protect you from scams
+            </p>
+            <button
+              onClick={() => setIsAddingContact(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              Add Your First Contact
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

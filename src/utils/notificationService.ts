@@ -5,6 +5,11 @@ export class NotificationService {
     contacts: TrustedContact[],
     alert: Alert
   ): Promise<void> {
+    if (!contacts || contacts.length === 0) {
+      console.warn('No trusted contacts available for notification');
+      return;
+    }
+
     const primaryContacts = contacts.filter(contact => contact.isPrimary);
     const contactsToNotify = primaryContacts.length > 0 ? primaryContacts : contacts.slice(0, 2);
 
@@ -14,6 +19,7 @@ export class NotificationService {
   }
 
   private async sendNotification(contact: TrustedContact, alert: Alert): Promise<void> {
+    try {
     // In production, integrate with:
     // - Twilio for SMS
     // - SendGrid for email
@@ -25,6 +31,10 @@ export class NotificationService {
     
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
+    } catch (error) {
+      console.error(`Failed to notify ${contact.name}:`, error);
+      throw error;
+    }
   }
 
   private formatAlertMessage(alert: Alert, contact: TrustedContact): string {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Mic, MicOff, Phone, PhoneOff, AlertTriangle, Shield, Volume2, Play, Pause } from 'lucide-react';
+import LoadingSpinner from './LoadingSpinner';
 import { CallData, Alert, VoiceAnalysis } from '../types';
 import RealTimeAnalysis from './RealTimeAnalysis';
 import ScamIndicators from './ScamIndicators';
@@ -430,6 +431,16 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
                 <p className={`text-sm ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>
                   ✨ Test how ScamGuard protects you from different scam types
                 </p>
+                
+                {voiceAnalysis.isProcessing && (
+                  <div className={`mt-6 p-4 rounded-xl ${highContrast ? 'bg-purple-900 border-purple-700' : 'bg-purple-50 border-purple-200'} border`}>
+                    <LoadingSpinner 
+                      size="sm" 
+                      text="AI is analyzing voice patterns..." 
+                      highContrast={highContrast}
+                    />
+                  </div>
+                )}
                 
                 <div className={`mt-6 p-4 rounded-xl ${highContrast ? 'bg-purple-900 border-purple-700' : 'bg-purple-50 border-purple-200'} border`}>
                   <h4 className={`text-lg font-bold ${highContrast ? 'text-purple-200' : 'text-purple-900'} mb-2`}>
