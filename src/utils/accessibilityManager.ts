@@ -3,12 +3,14 @@ export class AccessibilityManager {
   private currentUtterance: SpeechSynthesisUtterance | null = null;
 
   constructor() {
-    this.speechSynthesis = window.speechSynthesis;
+    this.speechSynthesis = typeof window !== 'undefined' ? window.speechSynthesis : null as any;
     this.setupKeyboardShortcuts();
   }
 
   // Text-to-speech for alerts and instructions
   public speak(text: string, priority: 'low' | 'medium' | 'high' | 'emergency' = 'medium'): void {
+    if (!this.speechSynthesis) return;
+    
     this.stopSpeaking();
 
     const utterance = new SpeechSynthesisUtterance(text);

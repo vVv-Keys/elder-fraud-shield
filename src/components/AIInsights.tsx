@@ -113,6 +113,14 @@ const AIInsights: React.FC<AIInsightsProps> = ({
                 </p>
               </div>
             ))}
+            
+            {recommendations.length === 0 && (
+              <div className="text-center py-4">
+                <p className={`${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>
+                  No specific recommendations at this time
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

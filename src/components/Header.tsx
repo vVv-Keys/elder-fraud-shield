@@ -73,7 +73,7 @@ const Header: React.FC<HeaderProps> = ({
             <div className={`flex items-center space-x-3 px-4 py-3 rounded-xl border ${
               highContrast ? 'bg-green-900 border-green-700' : 'bg-green-50 border-green-200'
             } shadow-sm hover:shadow-md transition-shadow`}>
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" aria-label="System status indicator"></div>
               <div>
                 <span className={`text-lg font-bold ${highContrast ? 'text-green-300' : 'text-green-700'}`}>
                   PROTECTED

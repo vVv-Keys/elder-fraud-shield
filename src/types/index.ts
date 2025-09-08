@@ -34,7 +34,6 @@ export interface SentimentAnalysis {
     deception: number;
   };
   voiceStress: number;
-  voiceStress: number;
 }
 
 export interface VoiceAnalysis {

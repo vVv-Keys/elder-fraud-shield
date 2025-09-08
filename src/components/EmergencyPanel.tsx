@@ -23,11 +23,15 @@ const EmergencyPanel: React.FC<EmergencyPanelProps> = ({ trustedContacts, onClos
   };
 
   const handleCallPolice = () => {
-    window.open('tel:911', '_self');
+    if (typeof window !== 'undefined') {
+      window.open('tel:911', '_self');
+    }
   };
 
   const handleCallFTC = () => {
-    window.open('tel:1-877-382-4357', '_self');
+    if (typeof window !== 'undefined') {
+      window.open('tel:1-877-382-4357', '_self');
+    }
   };
 
   const primaryContacts = trustedContacts.filter(contact => contact.isPrimary);

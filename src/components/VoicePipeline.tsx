@@ -312,6 +312,12 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
   const startRealTimeVoiceAnalysis = async () => {
     if (!voiceAI.isSupported()) {
       console.warn('Voice recognition not supported in this browser');
+      // Show fallback message to user
+      setVoiceAnalysis(prev => ({
+        ...prev,
+        currentPhrase: 'Voice recognition not available in this browser. Using text-based analysis.',
+        recommendations: ['Voice AI requires Chrome, Edge, or Safari for full functionality']
+      }));
       return;
     }
 
@@ -408,6 +414,7 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
                 >
                   🎭 Try Demo Call
                 </button>
+                
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <button
                     onClick={() => simulateSpecificScam('irs')}
@@ -428,6 +435,7 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
                     🏦 Bank Fraud
                   </button>
                 </div>
+                
                 <p className={`text-sm ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>
                   ✨ Test how ScamGuard protects you from different scam types
                 </p>

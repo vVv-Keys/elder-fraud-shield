@@ -83,9 +83,11 @@ export class ScamDetectionEngine {
         manipulation: manipulationScore,
         fear: fearScore,
         anger: angerScore
-      }
+        deception: Math.min(1, (urgencyScore + manipulationScore) * 0.5)
+      },
       },
       voiceStress: Math.random() * 0.5 + 0.2
+    };
   }
 
   private categorizePhrase(phrase: string): ScamIndicator['type'] {

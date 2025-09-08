@@ -30,18 +30,16 @@ export class VoiceAIService {
   private hf: HfInference;
   private recognition: SpeechRecognition | null = null;
   private isListening = false;
-  private audioContext: AudioContext | null = null;
-  private mediaRecorder: MediaRecorder | null = null;
-  private audioChunks: Blob[] = [];
 
   constructor(config: VoiceAIConfig) {
-    this.hf = new HfInference(config.apiKey || 'hf_demo_key');
+    // Use demo mode for client-side implementation
+    this.hf = new HfInference();
     this.setupSpeechRecognition();
   }
 
   private setupSpeechRecognition(): void {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       this.recognition = new SpeechRecognition();
       
       this.recognition.continuous = true;
