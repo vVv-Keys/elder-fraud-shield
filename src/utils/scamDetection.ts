@@ -82,9 +82,8 @@ export class ScamDetectionEngine {
         urgency: urgencyScore,
         manipulation: manipulationScore,
         fear: fearScore,
-        anger: angerScore
+        anger: angerScore,
         deception: Math.min(1, (urgencyScore + manipulationScore) * 0.5)
-      },
       },
       voiceStress: Math.random() * 0.5 + 0.2
     };
@@ -142,6 +141,7 @@ export class ScamDetectionEngine {
     }
     return 'Be cautious. Ask for their name and company, then hang up and verify independently.';
   }
+
   private calculateUrgencyScore(text: string): number {
     const urgencyCount = this.urgencyWords.filter(word => text.includes(word)).length;
     return Math.min(1, urgencyCount * 0.2);
