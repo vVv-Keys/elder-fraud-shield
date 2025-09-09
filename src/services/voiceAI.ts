@@ -24,17 +24,26 @@ export interface VoiceAnalysisResult {
   };
   recommendations: string[];
   confidence: number;
+  voiceMetrics: {
+    speechRate: number;
+    pauseFrequency: number;
+    stressLevel: number;
+    emotionalTone: string;
+  };
 }
 
 export class VoiceAIService {
   private hf: HfInference;
   private recognition: SpeechRecognition | null = null;
   private isListening = false;
+  private audioContext: AudioContext | null = null;
+  private analyser: AnalyserNode | null = null;
+  private mediaStream: MediaStream | null = null;
 
   constructor(config: VoiceAIConfig) {
-    // Use demo mode for client-side implementation
-    this.hf = new HfInference();
+    this.hf = new HfInference(config.apiKey);
     this.setupSpeechRecognition();
+    this.setupAudioAnalysis();
   }
 
   private setupSpeechRecognition(): void {
@@ -49,6 +58,12 @@ export class VoiceAIService {
     }
   }
 
+  private setupAudioAnalysis(): void {
+    if (typeof window !== 'undefined' && window.AudioContext) {
+      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+  }
+
   public async startVoiceAnalysis(
     onTranscript: (text: string) => void,
     onAnalysis: (result: VoiceAnalysisResult) => void,
@@ -59,9 +74,22 @@ export class VoiceAIService {
         throw new Error('Speech recognition not supported');
       }
 
+      // Get microphone access for audio analysis
+      this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      if (this.audioContext && this.mediaStream) {
+        const source = this.audioContext.createMediaStreamSource(this.mediaStream);
+        this.analyser = this.audioContext.createAnalyser();
+        this.analyser.fftSize = 2048;
+        source.connect(this.analyser);
+      }
+
       this.isListening = true;
       let finalTranscript = '';
       let interimTranscript = '';
+      let speechStartTime = Date.now();
+      let wordCount = 0;
+      let pauseCount = 0;
 
       this.recognition.onresult = async (event) => {
         interimTranscript = '';
@@ -71,9 +99,16 @@ export class VoiceAIService {
           
           if (event.results[i].isFinal) {
             finalTranscript += transcript + ' ';
+            wordCount += transcript.split(' ').length;
             
-            // Analyze the final transcript with AI
-            const analysis = await this.analyzeWithLLM(transcript);
+            // Analyze the final transcript with enhanced AI
+            const analysis = await this.performAdvancedAnalysis(
+              transcript, 
+              finalTranscript,
+              speechStartTime,
+              wordCount,
+              pauseCount
+            );
             onAnalysis(analysis);
           } else {
             interimTranscript += transcript;
@@ -83,13 +118,13 @@ export class VoiceAIService {
         onTranscript(finalTranscript + interimTranscript);
       };
 
-      this.recognition.onerror = (event) => {
-        onError(`Speech recognition error: ${event.error}`);
+      this.recognition.onstart = () => {
+        speechStartTime = Date.now();
       };
 
       this.recognition.onend = () => {
+        pauseCount++;
         if (this.isListening) {
-          // Restart recognition if it stops unexpectedly
           setTimeout(() => {
             if (this.isListening && this.recognition) {
               this.recognition.start();
@@ -98,32 +133,52 @@ export class VoiceAIService {
         }
       };
 
+      this.recognition.onerror = (event) => {
+        onError(`Speech recognition error: ${event.error}`);
+      };
+
       this.recognition.start();
     } catch (error) {
       onError(`Failed to start voice analysis: ${error}`);
     }
   }
 
-  public stopVoiceAnalysis(): void {
-    this.isListening = false;
-    if (this.recognition) {
-      this.recognition.stop();
-    }
-  }
-
-  private async analyzeWithLLM(text: string): Promise<VoiceAnalysisResult> {
+  private async performAdvancedAnalysis(
+    currentPhrase: string,
+    fullTranscript: string,
+    startTime: number,
+    wordCount: number,
+    pauseCount: number
+  ): Promise<VoiceAnalysisResult> {
     try {
+      // Calculate voice metrics
+      const duration = (Date.now() - startTime) / 1000;
+      const speechRate = wordCount / (duration / 60); // words per minute
+      const pauseFrequency = pauseCount / duration;
+      
+      // Audio analysis for stress detection
+      const stressLevel = this.analyzeAudioStress();
+      
       // Sentiment analysis using Hugging Face
-      const sentimentResult = await this.hf.textClassification({
-        model: 'cardiffnlp/twitter-roberta-base-sentiment-latest',
-        inputs: text
-      });
+      let sentimentResult;
+      try {
+        sentimentResult = await this.hf.textClassification({
+          model: 'cardiffnlp/twitter-roberta-base-sentiment-latest',
+          inputs: currentPhrase
+        });
+      } catch (error) {
+        console.warn('Sentiment analysis failed, using fallback');
+        sentimentResult = [{ label: 'NEUTRAL', score: 0.5 }];
+      }
 
-      // Scam detection using custom prompt
-      const scamAnalysis = await this.detectScamPatterns(text);
+      // Advanced scam detection
+      const scamAnalysis = await this.detectAdvancedScamPatterns(currentPhrase, fullTranscript);
+      
+      // Emotional tone analysis
+      const emotionalTone = this.analyzeEmotionalTone(currentPhrase, stressLevel);
       
       return {
-        transcript: text,
+        transcript: currentPhrase,
         sentiment: {
           label: Array.isArray(sentimentResult) ? sentimentResult[0]?.label || 'NEUTRAL' : 'NEUTRAL',
           score: Array.isArray(sentimentResult) ? sentimentResult[0]?.score || 0.5 : 0.5
@@ -132,108 +187,163 @@ export class VoiceAIService {
         detectedPatterns: scamAnalysis.patterns,
         riskFactors: scamAnalysis.riskFactors,
         recommendations: scamAnalysis.recommendations,
-        confidence: scamAnalysis.confidence
+        confidence: scamAnalysis.confidence,
+        voiceMetrics: {
+          speechRate,
+          pauseFrequency,
+          stressLevel,
+          emotionalTone
+        }
       };
     } catch (error) {
-      console.error('LLM analysis error:', error);
-      
-      // Fallback to rule-based analysis
-      return this.fallbackAnalysis(text);
+      console.error('Advanced analysis error:', error);
+      return this.fallbackAnalysis(currentPhrase);
     }
   }
 
-  private async detectScamPatterns(text: string): Promise<{
+  private analyzeAudioStress(): number {
+    if (!this.analyser) return 0.3;
+
+    const bufferLength = this.analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    this.analyser.getByteFrequencyData(dataArray);
+
+    // Calculate average frequency intensity
+    const average = dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
+    
+    // Higher frequencies often indicate stress/tension
+    const highFreqSum = dataArray.slice(bufferLength * 0.7).reduce((sum, value) => sum + value, 0);
+    const highFreqAvg = highFreqSum / (bufferLength * 0.3);
+    
+    // Normalize stress level (0-1)
+    return Math.min(1, (highFreqAvg / 255) * 2);
+  }
+
+  private analyzeEmotionalTone(text: string, stressLevel: number): string {
+    const lowerText = text.toLowerCase();
+    
+    if (stressLevel > 0.7) return 'aggressive';
+    if (lowerText.includes('please') || lowerText.includes('help')) return 'pleading';
+    if (lowerText.includes('urgent') || lowerText.includes('immediately')) return 'urgent';
+    if (lowerText.includes('trust') || lowerText.includes('believe')) return 'persuasive';
+    if (lowerText.includes('problem') || lowerText.includes('issue')) return 'concerning';
+    
+    return 'neutral';
+  }
+
+  private async detectAdvancedScamPatterns(currentPhrase: string, fullTranscript: string): Promise<{
     probability: number;
     patterns: string[];
     riskFactors: any;
     recommendations: string[];
     confidence: number;
   }> {
-    const lowerText = text.toLowerCase();
+    const text = currentPhrase.toLowerCase();
+    const fullText = fullTranscript.toLowerCase();
     
-    // Advanced pattern detection
+    // Enhanced scam pattern database
     const scamPatterns = {
-      urgency: [
-        'immediately', 'urgent', 'right now', 'expires today', 'final notice',
-        'last chance', 'act fast', 'limited time', 'deadline', 'emergency'
-      ],
-      authority: [
-        'irs', 'fbi', 'police', 'government', 'social security', 'medicare',
-        'microsoft', 'apple', 'google', 'bank', 'credit card company'
-      ],
-      financial: [
-        'money', 'payment', 'credit card', 'bank account', 'wire transfer',
-        'gift card', 'bitcoin', 'refund', 'fee', 'charge', 'deposit'
-      ],
-      personal: [
-        'social security number', 'ssn', 'password', 'pin', 'account number',
-        'date of birth', 'mother maiden name', 'address', 'zip code'
-      ],
-      pressure: [
-        'don\'t hang up', 'stay on the line', 'don\'t tell anyone',
-        'keep this confidential', 'secret', 'arrest', 'lawsuit', 'legal action'
-      ]
+      urgency: {
+        keywords: ['immediately', 'urgent', 'right now', 'expires today', 'final notice', 'last chance', 'act fast', 'limited time', 'deadline', 'emergency'],
+        weight: 0.8
+      },
+      authority: {
+        keywords: ['irs', 'fbi', 'police', 'government', 'social security', 'medicare', 'microsoft', 'apple', 'google', 'bank', 'credit card company', 'department'],
+        weight: 0.9
+      },
+      financial: {
+        keywords: ['money', 'payment', 'credit card', 'bank account', 'wire transfer', 'gift card', 'bitcoin', 'refund', 'fee', 'charge', 'deposit', 'withdraw'],
+        weight: 0.85
+      },
+      personal: {
+        keywords: ['social security number', 'ssn', 'password', 'pin', 'account number', 'date of birth', 'mother maiden name', 'address', 'zip code', 'verify', 'confirm'],
+        weight: 0.95
+      },
+      pressure: {
+        keywords: ['don\'t hang up', 'stay on the line', 'don\'t tell anyone', 'keep this confidential', 'secret', 'arrest', 'lawsuit', 'legal action', 'consequences'],
+        weight: 0.9
+      },
+      technical: {
+        keywords: ['computer', 'virus', 'infected', 'malware', 'remote access', 'teamviewer', 'windows', 'error', 'warning', 'security alert'],
+        weight: 0.85
+      }
     };
 
     const detectedPatterns: string[] = [];
-    const riskFactors = {
-      urgency: 0,
-      authority: 0,
-      financial: 0,
-      personal: 0,
-      pressure: 0
-    };
+    const riskFactors: any = {};
+    let totalRisk = 0;
 
-    // Calculate risk factors
-    Object.entries(scamPatterns).forEach(([category, patterns]) => {
-      const matches = patterns.filter(pattern => lowerText.includes(pattern));
+    // Analyze patterns with context awareness
+    Object.entries(scamPatterns).forEach(([category, pattern]) => {
+      const matches = pattern.keywords.filter(keyword => text.includes(keyword) || fullText.includes(keyword));
       if (matches.length > 0) {
-        riskFactors[category as keyof typeof riskFactors] = Math.min(1, matches.length * 0.3);
+        const categoryRisk = Math.min(1, matches.length * 0.3) * pattern.weight;
+        riskFactors[category] = categoryRisk;
+        totalRisk += categoryRisk;
         detectedPatterns.push(`${category.toUpperCase()}: ${matches.join(', ')}`);
+      } else {
+        riskFactors[category] = 0;
       }
     });
 
-    // Calculate overall probability
-    const totalRisk = Object.values(riskFactors).reduce((sum, risk) => sum + risk, 0);
-    const probability = Math.min(1, totalRisk / 2);
+    // Context-based risk adjustment
+    if (fullText.length > 100) {
+      // Longer conversations with multiple risk factors are more dangerous
+      const riskFactorCount = Object.values(riskFactors).filter((risk: any) => risk > 0.3).length;
+      if (riskFactorCount >= 3) {
+        totalRisk *= 1.3; // 30% increase for multiple risk factors
+      }
+    }
 
-    // Generate recommendations based on detected patterns
-    const recommendations = this.generateRecommendations(riskFactors, detectedPatterns);
+    const probability = Math.min(1, totalRisk / 3);
+    const recommendations = this.generateContextualRecommendations(riskFactors, detectedPatterns, probability);
 
     return {
       probability,
       patterns: detectedPatterns,
       riskFactors,
       recommendations,
-      confidence: Math.min(0.95, probability + 0.2)
+      confidence: Math.min(0.95, probability + 0.15)
     };
   }
 
-  private generateRecommendations(riskFactors: any, patterns: string[]): string[] {
+  private generateContextualRecommendations(riskFactors: any, patterns: string[], probability: number): string[] {
     const recommendations: string[] = [];
 
+    if (probability >= 0.8) {
+      recommendations.push('🚨 CRITICAL: Hang up immediately - this is extremely dangerous');
+      recommendations.push('📞 Call your family right now to let them know about this threat');
+    } else if (probability >= 0.6) {
+      recommendations.push('⚠️ HIGH RISK: Consider ending this call');
+      recommendations.push('❓ Ask for their name, company, and call them back using official numbers');
+    } else if (probability >= 0.4) {
+      recommendations.push('⚡ MEDIUM RISK: Be very cautious');
+      recommendations.push('🔍 Verify any claims they make independently');
+    }
+
     if (riskFactors.urgency > 0.5) {
-      recommendations.push('🚨 URGENT: Scammers create false urgency. Take time to think.');
+      recommendations.push('⏰ Scammers create false urgency - take time to think');
     }
 
     if (riskFactors.authority > 0.5) {
-      recommendations.push('🏛️ AUTHORITY SCAM: Government agencies don\'t call without notice.');
+      recommendations.push('🏛️ Government agencies and companies don\'t call without prior notice');
     }
 
     if (riskFactors.financial > 0.5) {
-      recommendations.push('💰 MONEY SCAM: Never give financial information over the phone.');
+      recommendations.push('💰 Never give financial information to unsolicited callers');
     }
 
     if (riskFactors.personal > 0.5) {
-      recommendations.push('🔒 IDENTITY THEFT: Never share personal information with callers.');
+      recommendations.push('🔒 NEVER share personal information like SSN or passwords');
     }
 
     if (riskFactors.pressure > 0.5) {
-      recommendations.push('⚠️ PRESSURE TACTICS: Legitimate callers don\'t threaten or pressure.');
+      recommendations.push('⚠️ Legitimate callers don\'t threaten or pressure you');
     }
 
     if (recommendations.length === 0) {
-      recommendations.push('✅ Continue conversation but stay alert for warning signs.');
+      recommendations.push('✅ Continue conversation but stay alert for warning signs');
+      recommendations.push('📝 Write down what they\'re saying for reference');
     }
 
     return recommendations;
@@ -242,7 +352,6 @@ export class VoiceAIService {
   private fallbackAnalysis(text: string): VoiceAnalysisResult {
     const lowerText = text.toLowerCase();
     
-    // Simple keyword-based analysis as fallback
     const scamKeywords = [
       'irs', 'tax', 'refund', 'social security', 'suspended', 'arrest',
       'microsoft', 'computer', 'virus', 'infected', 'remote access',
@@ -271,20 +380,42 @@ export class VoiceAIService {
       recommendations: scamProbability > 0.6 ? 
         ['🚨 HIGH RISK: Consider hanging up immediately'] : 
         ['✅ Continue conversation but stay alert'],
-      confidence: 0.7
+      confidence: 0.7,
+      voiceMetrics: {
+        speechRate: 150,
+        pauseFrequency: 0.3,
+        stressLevel: scamProbability * 0.8,
+        emotionalTone: scamProbability > 0.6 ? 'aggressive' : 'neutral'
+      }
     };
+  }
+
+  public stopVoiceAnalysis(): void {
+    this.isListening = false;
+    
+    if (this.recognition) {
+      this.recognition.stop();
+    }
+    
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach(track => track.stop());
+      this.mediaStream = null;
+    }
+    
+    if (this.audioContext && this.audioContext.state !== 'closed') {
+      this.audioContext.close();
+    }
   }
 
   public async analyzeAudioFile(audioBlob: Blob): Promise<VoiceAnalysisResult> {
     try {
-      // Convert audio to text using Hugging Face
       const result = await this.hf.automaticSpeechRecognition({
         model: 'openai/whisper-small',
         data: audioBlob
       });
 
       const transcript = typeof result === 'object' && 'text' in result ? result.text : '';
-      return await this.analyzeWithLLM(transcript);
+      return await this.performAdvancedAnalysis(transcript, transcript, Date.now(), transcript.split(' ').length, 0);
     } catch (error) {
       console.error('Audio analysis error:', error);
       throw new Error('Failed to analyze audio');
@@ -292,7 +423,11 @@ export class VoiceAIService {
   }
 
   public isSupported(): boolean {
-    return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+    return !!(typeof window !== 'undefined' && (window.SpeechRecognition || (window as any).webkitSpeechRecognition));
+  }
+
+  public getAudioSupport(): boolean {
+    return !!(typeof window !== 'undefined' && window.AudioContext && navigator.mediaDevices);
   }
 }
 

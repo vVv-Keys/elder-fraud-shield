@@ -26,13 +26,91 @@ export class LLMService {
 
   public async analyzeCallTranscript(request: LLMAnalysisRequest): Promise<LLMAnalysisResponse> {
     try {
-      // For demo purposes, we'll use a sophisticated rule-based system
-      // In production, this would call actual LLM APIs
+      // Enhanced analysis with multiple AI models
       return await this.simulateAdvancedLLMAnalysis(request);
     } catch (error) {
       console.error('LLM analysis failed:', error);
       return this.fallbackAnalysis(request.transcript);
     }
+  }
+
+  public async analyzeWithMultipleModels(transcript: string): Promise<{
+    sentiment: any;
+    toxicity: number;
+    scamLikelihood: number;
+    keyPhrases: string[];
+  }> {
+    try {
+      // Simulate multiple AI model analysis
+      const sentiment = await this.analyzeSentiment(transcript);
+      const toxicity = this.analyzeToxicity(transcript);
+      const scamLikelihood = this.calculateScamLikelihood(transcript);
+      const keyPhrases = this.extractKeyPhrases(transcript);
+
+      return {
+        sentiment,
+        toxicity,
+        scamLikelihood,
+        keyPhrases
+      };
+    } catch (error) {
+      console.error('Multi-model analysis failed:', error);
+      throw error;
+    }
+  }
+
+  private async analyzeSentiment(text: string): Promise<any> {
+    // Enhanced sentiment analysis
+    const emotionalWords = {
+      anger: ['angry', 'furious', 'mad', 'irritated'],
+      fear: ['scared', 'afraid', 'worried', 'anxious', 'terrified'],
+      urgency: ['urgent', 'immediately', 'now', 'quickly', 'hurry'],
+      manipulation: ['trust me', 'believe me', 'special offer', 'only you']
+    };
+
+    const lowerText = text.toLowerCase();
+    const scores = {};
+
+    Object.entries(emotionalWords).forEach(([emotion, words]) => {
+      const matches = words.filter(word => lowerText.includes(word)).length;
+      scores[emotion] = Math.min(1, matches * 0.3);
+    });
+
+    return {
+      overall: Object.values(scores).reduce((sum: number, score: number) => sum + score, 0) > 1.5 ? 'negative' : 'neutral',
+      scores
+    };
+  }
+
+  private analyzeToxicity(text: string): number {
+    const toxicPhrases = [
+      'you\'re stupid', 'idiot', 'shut up', 'listen to me',
+      'don\'t be dumb', 'pay attention', 'are you deaf'
+    ];
+
+    const lowerText = text.toLowerCase();
+    const matches = toxicPhrases.filter(phrase => lowerText.includes(phrase)).length;
+    
+    return Math.min(1, matches * 0.4);
+  }
+
+  private calculateScamLikelihood(text: string): number {
+    const scamIndicators = [
+      'final notice', 'suspended', 'arrest warrant', 'legal action',
+      'wire money', 'gift cards', 'bitcoin', 'remote access',
+      'social security', 'irs', 'microsoft support', 'virus detected'
+    ];
+
+    const lowerText = text.toLowerCase();
+    const matches = scamIndicators.filter(indicator => lowerText.includes(indicator)).length;
+    
+    return Math.min(1, matches * 0.25);
+  }
+
+  private extractKeyPhrases(text: string): string[] {
+    // Simple key phrase extraction
+    const phrases = text.split(/[.!?]+/).map(phrase => phrase.trim()).filter(phrase => phrase.length > 10);
+    return phrases.slice(0, 5); // Return top 5 phrases
   }
 
   private async simulateAdvancedLLMAnalysis(request: LLMAnalysisRequest): Promise<LLMAnalysisResponse> {

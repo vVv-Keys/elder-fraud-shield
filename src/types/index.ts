@@ -44,6 +44,12 @@ export interface VoiceAnalysis {
   recommendations: string[];
   confidence: number;
   processingTime: number;
+  voiceMetrics: {
+    speechRate: number;
+    pauseFrequency: number;
+    stressLevel: number;
+    emotionalTone: string;
+  };
 }
 
 export interface Alert {

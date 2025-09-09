@@ -94,6 +94,13 @@ const RealTimeAnalysis: React.FC<RealTimeAnalysisProps> = ({ analysis, highContr
                 Analysis: {analysis.processingTime.toFixed(1)}s
               </span>
             </div>
+            {analysis.voiceMetrics && (
+              <div className="flex items-center space-x-2">
+                <span className={highContrast ? 'text-gray-300' : 'text-gray-600'}>
+                  Voice: {analysis.voiceMetrics.emotionalTone}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -34,10 +34,22 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
     detectedPatterns: [],
     recommendations: [],
     confidence: 0,
-    processingTime: 0
+    processingTime: 0,
+    voiceMetrics: {
+      speechRate: 0,
+      pauseFrequency: 0,
+      stressLevel: 0,
+      emotionalTone: 'neutral'
+    }
   });
   const [isVoiceAIActive, setIsVoiceAIActive] = useState(false);
   const [realTimeTranscript, setRealTimeTranscript] = useState('');
+  const [audioSupported, setAudioSupported] = useState(false);
+
+  // Check audio support on mount
+  useEffect(() => {
+    setAudioSupported(voiceAI.getAudioSupport());
+  }, []);
 
   // Update call duration
   useEffect(() => {
@@ -338,7 +350,8 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
             detectedPatterns: analysis.detectedPatterns,
             recommendations: analysis.recommendations,
             confidence: analysis.confidence,
-            processingTime: 1.2
+            processingTime: 1.2,
+            voiceMetrics: analysis.voiceMetrics
           }));
 
           // Generate alert if high risk detected
@@ -455,9 +468,14 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
                     🤖 AI Voice Detection Active
                   </h4>
                   <p className={`${highContrast ? 'text-purple-300' : 'text-purple-700'}`}>
-                    Advanced AI models are ready to analyze speech patterns, detect emotional manipulation, 
-                    and identify scam tactics in real-time.
+                    Advanced AI models are ready to analyze speech patterns, voice stress, emotional manipulation, 
+                    and identify scam tactics in real-time with audio processing.
                   </p>
+                  {!audioSupported && (
+                    <p className={`text-sm mt-2 ${highContrast ? 'text-yellow-300' : 'text-yellow-700'}`}>
+                      ⚠️ Advanced audio analysis requires microphone access
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

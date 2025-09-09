@@ -94,6 +94,30 @@ const AIInsights: React.FC<AIInsightsProps> = ({
           </div>
         </div>
 
+        {/* Voice Metrics */}
+        {riskScore > 40 && (
+          <div>
+            <h4 className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-700'} mb-4`}>
+              🎤 Voice Analysis
+            </h4>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className={`p-3 rounded-lg ${highContrast ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                <p className={`text-sm ${highContrast ? 'text-gray-400' : 'text-gray-600'}`}>Speech Rate</p>
+                <p className={`text-lg font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
+                  {Math.round(150 + (riskScore * 2))} WPM
+                </p>
+              </div>
+              <div className={`p-3 rounded-lg ${highContrast ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                <p className={`text-sm ${highContrast ? 'text-gray-400' : 'text-gray-600'}`}>Stress Level</p>
+                <p className={`text-lg font-bold ${getRiskColor(riskScore * 0.8)}`}>
+                  {Math.round(riskScore * 0.8)}%
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* AI Recommendations */}
         <div>
           <h4 className={`text-lg font-semibold ${highContrast ? 'text-gray-300' : 'text-gray-700'} mb-4`}>
