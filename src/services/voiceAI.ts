@@ -71,7 +71,7 @@ export class VoiceAIService {
   ): Promise<void> {
     try {
       if (!this.recognition) {
-        throw new Error('Speech recognition not supported');
+        throw new Error('Voice recognition not supported in this browser');
       }
 
       // Get microphone access for audio analysis
@@ -101,7 +101,7 @@ export class VoiceAIService {
             finalTranscript += transcript + ' ';
             wordCount += transcript.split(' ').length;
             
-            // Analyze the final transcript with enhanced AI
+            // Analyze the final transcript
             const analysis = await this.performAdvancedAnalysis(
               transcript, 
               finalTranscript,
@@ -134,12 +134,12 @@ export class VoiceAIService {
       };
 
       this.recognition.onerror = (event) => {
-        onError(`Speech recognition error: ${event.error}`);
+        onError(`Voice recognition error: ${event.error}`);
       };
 
       this.recognition.start();
     } catch (error) {
-      onError(`Failed to start voice analysis: ${error}`);
+      onError(`Failed to start voice analysis: Please allow microphone access`);
     }
   }
 

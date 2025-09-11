@@ -124,7 +124,7 @@ function App() {
                 <Shield className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h2 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>ScamGuard</h2>
+                <h2 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>Protection</h2>
                 <p className={`text-sm ${highContrast ? 'text-gray-300' : 'text-gray-600'}`}>Protecting You</p>
               </div>
             </div>

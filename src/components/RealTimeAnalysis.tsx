@@ -43,7 +43,7 @@ const RealTimeAnalysis: React.FC<RealTimeAnalysisProps> = ({ analysis, highContr
         <div className="flex items-center space-x-3 mb-6">
           <Brain className="w-7 h-7 text-purple-600" />
           <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-gray-900'}`}>
-            AI is Analyzing
+            Live Analysis
           </h3>
         </div>
         

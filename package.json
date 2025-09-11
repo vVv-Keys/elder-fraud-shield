@@ -1,7 +1,10 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "scamguard-ai",
+  "version": "1.0.0",
+  "description": "Advanced phone protection platform for seniors",
+  "author": "ScamGuard Team",
+  "license": "MIT",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,6 +12,13 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
+  "keywords": [
+    "scam-protection",
+    "elderly-safety",
+    "phone-security",
+    "fraud-prevention",
+    "senior-protection"
+  ],
   "dependencies": {
     "@huggingface/inference": "^4.7.1",
     "lucide-react": "^0.344.0",

@@ -417,7 +417,7 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
               </h3>
               <p className={`${highContrast ? 'text-gray-300' : 'text-gray-600'} mb-8 text-lg max-w-md mx-auto`}>
                 ScamGuard is actively monitoring for incoming calls. When a call comes in, 
-                our AI will analyze it in real-time to keep you safe from scammers.
+                Advanced protection system monitoring your calls
               </p>
               
               <div className="space-y-4">
@@ -465,11 +465,11 @@ const VoicePipeline: React.FC<VoicePipelineProps> = ({
                 
                 <div className={`mt-6 p-4 rounded-xl ${highContrast ? 'bg-purple-900 border-purple-700' : 'bg-purple-50 border-purple-200'} border`}>
                   <h4 className={`text-lg font-bold ${highContrast ? 'text-purple-200' : 'text-purple-900'} mb-2`}>
-                    🤖 AI Voice Detection Active
+                    🔊 Voice Detection Active
                   </h4>
                   <p className={`${highContrast ? 'text-purple-300' : 'text-purple-700'}`}>
-                    Advanced AI models are ready to analyze speech patterns, voice stress, emotional manipulation, 
-                    and identify scam tactics in real-time with audio processing.
+                    Advanced models are ready to analyze speech patterns, voice stress, emotional manipulation, 
+                    and identify scam tactics in real-time.
                   </p>
                   {!audioSupported && (
                     <p className={`text-sm mt-2 ${highContrast ? 'text-yellow-300' : 'text-yellow-700'}`}>

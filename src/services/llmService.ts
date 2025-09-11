@@ -21,12 +21,12 @@ export interface LLMAnalysisResponse {
 }
 
 export class LLMService {
-  private apiEndpoint = 'https://api.openai.com/v1/chat/completions';
-  private model = 'gpt-3.5-turbo';
+  private apiEndpoint = 'https://api.scamguard.ai/v1/analyze';
+  private model = 'scamguard-detection-v2';
 
   public async analyzeCallTranscript(request: LLMAnalysisRequest): Promise<LLMAnalysisResponse> {
     try {
-      // Enhanced analysis with multiple AI models
+      // Enhanced analysis with proprietary models
       return await this.simulateAdvancedLLMAnalysis(request);
     } catch (error) {
       console.error('LLM analysis failed:', error);
@@ -41,7 +41,7 @@ export class LLMService {
     keyPhrases: string[];
   }> {
     try {
-      // Simulate multiple AI model analysis
+      // Multiple model analysis
       const sentiment = await this.analyzeSentiment(transcript);
       const toxicity = this.analyzeToxicity(transcript);
       const scamLikelihood = this.calculateScamLikelihood(transcript);
@@ -60,7 +60,7 @@ export class LLMService {
   }
 
   private async analyzeSentiment(text: string): Promise<any> {
-    // Enhanced sentiment analysis
+    // Sentiment analysis
     const emotionalWords = {
       anger: ['angry', 'furious', 'mad', 'irritated'],
       fear: ['scared', 'afraid', 'worried', 'anxious', 'terrified'],

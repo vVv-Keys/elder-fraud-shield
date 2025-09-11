@@ -25,7 +25,7 @@ const Header: React.FC<HeaderProps> = ({
               </div>
               <div>
                 <h1 className={`text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent drop-shadow-sm`}>
-                  ScamGuard AI
+                  ScamGuard
                 </h1>
                 <p className={`text-lg ${highContrast ? 'text-gray-300' : 'text-gray-600'}`}>
                   Your Personal Phone Protection

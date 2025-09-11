@@ -66,7 +66,7 @@ const Dashboard: React.FC<DashboardProps> = ({ alerts, highContrast }) => {
             Your Protection Report
           </h2>
           <p className={`${highContrast ? 'text-gray-300' : 'text-gray-600'} text-lg mt-2`}>
-            See how ScamGuard has been protecting you
+            See how the system has been protecting you
           </p>
         </div>
       </div>
